@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>樂齡 FIRE 退休財務規劃 | 加入定期定額版</title>
+    <title>樂齡 FIRE 退休財務規劃 | 無預設值與現金部位版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <style>
         :root {
@@ -33,8 +33,8 @@
         
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .field label { display: block; font-size: 13px; color: var(--color-text-sub); margin-bottom: 6px; }
-        .input-box { display: flex; align-items: center; border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 12px; }
-        .input-box input { border: none; width: 100%; outline: none; font-size: 15px; }
+        .input-box { display: flex; align-items: center; border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 12px; background: #fff; }
+        .input-box input { border: none; width: 100%; outline: none; font-size: 15px; background: transparent; }
         .input-box span { color: var(--color-text-sub); margin-right: 5px; }
         
         .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
@@ -46,6 +46,7 @@
         .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
         .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
         .alert-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .alert-info { background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
         
         input[type=range] { width: 100%; accent-color: var(--color-primary); cursor: pointer; }
         .slider-row { margin-bottom: 15px; }
@@ -57,7 +58,7 @@
 <div class="app-card">
     <div class="header">
         <h2 style="margin:0; color: var(--color-primary);">樂齡 FIRE 退休規劃工具</h2>
-        <p style="font-size:12px; color:var(--color-text-sub); margin:5px 0 0;">包含退休前定期定額投入計算 (幣別: NTD)</p>
+        <p style="font-size:12px; color:var(--color-text-sub); margin:5px 0 0;">包含獨立現金儲蓄部位計算 (幣別: NTD)</p>
     </div>
 
     <div class="tabs">
@@ -68,28 +69,32 @@
 
     <!-- TAB 1: INPUTS -->
     <div id="tab-inputs" class="panel active">
-        <div id="status-banner"></div>
+        <div id="status-banner" class="alert alert-info">請填寫下方所有欄位以產生您的退休預測報告。</div>
         
         <div class="input-grid">
             <div class="field">
                 <label>目前年齡</label>
-                <div class="input-box"><input type="number" id="age" value="47" oninput="runCalc()"></div>
+                <div class="input-box"><input type="number" id="age" placeholder="例如: 45" oninput="runCalc()"></div>
             </div>
             <div class="field">
                 <label>預計退休年齡</label>
-                <div class="input-box"><input type="number" id="retAge" value="55" oninput="runCalc()"></div>
+                <div class="input-box"><input type="number" id="retAge" placeholder="例如: 55" oninput="runCalc()"></div>
             </div>
             <div class="field">
                 <label>目前總投資資產 (NT$)</label>
-                <div class="input-box"><span>$</span><input type="number" id="saved" value="30000000" oninput="runCalc()"></div>
+                <div class="input-box"><span>$</span><input type="number" id="saved" placeholder="例如: 15000000" oninput="runCalc()"></div>
             </div>
             <div class="field">
-                <label>退休前每年持續投入金額</label>
-                <div class="input-box"><span>$</span><input type="number" id="annSavings" value="1000000" title="退休前每年可新增的投資額" oninput="runCalc()"></div>
+                <label>目前未投資存款 (NT$)</label>
+                <div class="input-box"><span>$</span><input type="number" id="cash" placeholder="例如: 2000000" title="這筆資金在退休前不會產生投資報酬" oninput="runCalc()"></div>
+            </div>
+            <div class="field">
+                <label>退休前每年持續投入 (NT$)</label>
+                <div class="input-box"><span>$</span><input type="number" id="annSavings" placeholder="例如: 1000000" oninput="runCalc()"></div>
             </div>
             <div class="field">
                 <label>退休後年生活支出 (當前幣值)</label>
-                <div class="input-box"><span>$</span><input type="number" id="expenses" value="1200000" oninput="runCalc()"></div>
+                <div class="input-box"><span>$</span><input type="number" id="expenses" placeholder="例如: 1200000" oninput="runCalc()"></div>
             </div>
         </div>
 
@@ -106,21 +111,24 @@
             <input type="range" id="inf" min="0" max="8" step="0.25" value="2.5" oninput="runCalc()">
         </div>
 
-        <div class="metric-grid" id="metrics"></div>
+        <div class="metric-grid" id="metrics">
+            <div class="metric"><div class="metric-title">FIRE 目標資產 (3.5% 提領率)</div><div class="metric-val">--</div></div>
+            <div class="metric"><div class="metric-title">預估退休時總資產</div><div class="metric-val">--</div></div>
+            <div class="metric"><div class="metric-title">退休首年可提領額度</div><div class="metric-val">--</div></div>
+        </div>
     </div>
 
     <!-- TAB 2: GROWTH -->
     <div id="tab-growth" class="panel">
         <p style="font-size:13px; color:var(--color-text-sub);">資產變化曲線 (實線為基準，虛線為首年市場衰退 30% 情境)</p>
         <div class="chart-container"><canvas id="chartGrowth"></canvas></div>
-        <div id="milestones"></div>
     </div>
 
     <!-- TAB 3: RISK -->
     <div id="tab-risk" class="panel">
         <h4 style="margin-top:0;">蒙地卡羅生存分析 (500次模擬)</h4>
         <div class="chart-container"><canvas id="chartMonte"></canvas></div>
-        <div id="risk-note" class="alert"></div>
+        <div id="risk-note" class="alert alert-info">等待數據輸入...</div>
     </div>
 </div>
 
@@ -137,17 +145,17 @@ function switchTab(tabId, el) {
 }
 
 function fmt(n) {
+    if (isNaN(n) || n == null) return '--';
     if (n >= 1e8) return 'NT$ ' + (n/1e8).toFixed(2) + ' 億';
     if (n >= 1e4) return 'NT$ ' + (n/1e4).toFixed(0) + ' 萬';
     return 'NT$ ' + Math.round(n).toLocaleString();
 }
 
 function runCalc() {
-    const age = parseInt(document.getElementById('age').value) || 0;
-    const retAge = parseInt(document.getElementById('retAge').value) || 0;
-    const saved = parseFloat(document.getElementById('saved').value) || 0;
-    const annSavings = parseFloat(document.getElementById('annSavings').value) || 0; // 新增：每年儲蓄
-    const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+    const ageRaw = document.getElementById('age').value;
+    const retAgeRaw = document.getElementById('retAge').value;
+    const expensesRaw = document.getElementById('expenses').value;
+
     const rPre = parseFloat(document.getElementById('rPre').value) / 100;
     const rPost = parseFloat(document.getElementById('rPost').value) / 100;
     const inf = parseFloat(document.getElementById('inf').value) / 100;
@@ -156,38 +164,55 @@ function runCalc() {
     document.getElementById('v-rPost').innerText = (rPost*100).toFixed(1) + '%';
     document.getElementById('v-inf').innerText = (inf*100).toFixed(1) + '%';
 
+    // 檢查必填欄位
+    if (!ageRaw || !retAgeRaw || !expensesRaw) {
+        document.getElementById('status-banner').className = "alert alert-info";
+        document.getElementById('status-banner').innerText = "請填寫您的年齡、退休年齡與預期支出，以開始計算。";
+        return; // 等待使用者填寫完畢
+    }
+
+    const age = parseInt(ageRaw) || 0;
+    const retAge = parseInt(retAgeRaw) || 0;
+    const saved = parseFloat(document.getElementById('saved').value) || 0;
+    const cash = parseFloat(document.getElementById('cash').value) || 0;
+    const annSavings = parseFloat(document.getElementById('annSavings').value) || 0;
+    const expenses = parseFloat(expensesRaw) || 0;
+
+    if (age >= retAge || expenses <= 0) return;
+
     const swr = 0.035; 
     const fireTarget = expenses / swr;
     const yearsToRet = Math.max(0, retAge - age);
     const retYears = 95 - retAge;
 
-    // 計算退休時資產 (加入每年投入的資金)
-    let portAtRet = saved;
+    // 計算累積期：投資部位增長
+    let investedAtRet = saved;
     for(let i=0; i < yearsToRet; i++) {
-        // 先計算當年度報酬，再加上年底投入的儲蓄
-        portAtRet = portAtRet * (1 + rPre) + annSavings;
+        investedAtRet = investedAtRet * (1 + rPre) + annSavings;
     }
+    
+    // 退休時總資產 = 累積的投資部位 + 未投資的現金存款
+    const portAtRet = investedAtRet + cash;
 
     // 基準路徑與首年衰退路徑
     let labels = [], data = [], bearData = [];
-    let curr = portAtRet, currBear = portAtRet;
     
-    // 為了讓圖表顯示從「現在」到「退休」的累積過程，我們把累積期也畫進去
+    // 累積期：投資部位增長 + 固定的現金部位
     for(let i=0; i < yearsToRet; i++) {
         labels.push(age + i);
-        // 回推每年的資產狀態用於繪圖
-        let pastPort = saved;
-        for(let j=0; j<=i; j++) pastPort = (j===0) ? saved : pastPort * (1 + rPre) + annSavings;
-        data.push(Math.round(pastPort));
-        bearData.push(Math.round(pastPort)); // 累積期不計算衰退
+        let pastInvested = saved;
+        for(let j=0; j<=i; j++) pastInvested = (j===0) ? saved : pastInvested * (1 + rPre) + annSavings;
+        const totalNetWorth = pastInvested + cash;
+        data.push(Math.round(totalNetWorth));
+        bearData.push(Math.round(totalNetWorth));
     }
     
-    // 退休後的消耗期
+    // 消耗期
+    let curr = portAtRet, currBear = portAtRet;
     for(let y=0; y <= retYears; y++) {
         labels.push(retAge + y);
         
         if (y === 0 && yearsToRet > 0) {
-             // 避免在圖表上出現兩個重複的退休第一年節點
              labels.pop(); 
         } else {
             data.push(Math.round(curr));
@@ -197,13 +222,13 @@ function runCalc() {
         const adjExp = expenses * Math.pow(1+inf, y);
         curr = Math.max(0, curr * (1 + rPost) - adjExp);
         if(y === 0) {
-            currBear = currBear * 0.7; // 第一年暴跌 30%
+            currBear = currBear * 0.7; // 退休第一年暴跌 30%
         } else {
             currBear = Math.max(0, currBear * (1 + rPost) - adjExp);
         }
     }
 
-    // 蒙地卡羅模擬 (500次，僅針對退休後消耗期)
+    // 蒙地卡羅模擬
     let mcResults = [];
     for(let y=0; y <= retYears; y++) {
         let success = 0;
@@ -219,7 +244,7 @@ function runCalc() {
         mcResults.push((success/500)*100);
     }
 
-    state = { labels, data, bearData, mcResults, fireTarget, saved, portAtRet, retYears, yearsToRet };
+    state = { labels, data, bearData, mcResults, fireTarget, saved, cash, portAtRet, retYears, yearsToRet };
     updateUI();
 }
 
@@ -227,15 +252,15 @@ function updateUI() {
     const banner = document.getElementById('status-banner');
     if (state.portAtRet >= state.fireTarget) {
         banner.className = "alert alert-success";
-        banner.innerText = `按照目前的資產與每年投入計畫，您預計在退休時可累積 ${fmt(state.portAtRet)}，已超越 FIRE 目標。`;
+        banner.innerText = `按照目前的計畫，您預計在退休時可累積 ${fmt(state.portAtRet)} (含現金部位)，已超越 FIRE 目標。`;
     } else {
         banner.className = "alert alert-warn";
-        banner.innerText = `按照目前的計畫，預計退休時資產為 ${fmt(state.portAtRet)}，距離 FIRE 目標還差 ${fmt(state.fireTarget - state.portAtRet)}。`;
+        banner.innerText = `按照目前的計畫，預計退休時總資產為 ${fmt(state.portAtRet)}，距離 FIRE 目標還差 ${fmt(state.fireTarget - state.portAtRet)}。`;
     }
 
     document.getElementById('metrics').innerHTML = `
         <div class="metric"><div class="metric-title">FIRE 目標資產 (3.5% 提領率)</div><div class="metric-val">${fmt(state.fireTarget)}</div></div>
-        <div class="metric"><div class="metric-title">預估退休時資產</div><div class="metric-val">${fmt(state.portAtRet)}</div></div>
+        <div class="metric"><div class="metric-title">預估退休時總資產</div><div class="metric-val">${fmt(state.portAtRet)}</div></div>
         <div class="metric"><div class="metric-title">退休首年可提領額度</div><div class="metric-val">${fmt(state.portAtRet * 0.035)}</div></div>
     `;
 
@@ -243,19 +268,21 @@ function updateUI() {
     const riskNote = document.getElementById('risk-note');
     riskNote.innerText = `在 500 次市場波動模擬中，您的資產從退休支撐到 95 歲的成功率為 ${finalSuccess.toFixed(0)}%。`;
     riskNote.className = finalSuccess > 80 ? "alert alert-success" : "alert alert-warn";
+    
+    // 如果圖表已經初始化，實時更新
+    if (charts.g || charts.m) updateCharts();
 }
 
 function updateCharts() {
-    if(!state.labels) return;
+    if(!state.labels || state.labels.length === 0) return;
 
-    // Growth Chart
     if(charts.g) charts.g.destroy();
     charts.g = new Chart(document.getElementById('chartGrowth'), {
         type: 'line',
         data: {
             labels: state.labels,
             datasets: [
-                { label: '預估資產路徑', data: state.data, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
+                { label: '預估總資產 (含現金)', data: state.data, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
                 { label: '退休首年衰退 30%', data: state.bearData, borderColor: '#e11d48', borderDash: [5,5], fill: false, tension: 0.3, pointRadius: 0 }
             ]
         },
@@ -264,7 +291,6 @@ function updateCharts() {
         }
     });
 
-    // Monte Carlo Chart (X-axis adjusted for retirement phase only)
     const mcLabels = state.labels.slice(state.yearsToRet); 
     if(charts.m) charts.m.destroy();
     charts.m = new Chart(document.getElementById('chartMonte'), {
@@ -280,9 +306,6 @@ function updateCharts() {
         }
     });
 }
-
-// Initial Run
-runCalc();
 </script>
 </body>
 </html>
