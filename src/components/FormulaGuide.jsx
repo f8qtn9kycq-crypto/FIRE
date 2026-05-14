@@ -126,34 +126,34 @@ function Section({ section, open, onToggle }) {
         onClick={onToggle}
         style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "15px 14px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
       >
-        <span style={{ width: 28, height: 28, borderRadius: 6, border: `1px solid ${section.color}70`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: section.color, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
+        <span style={{ width: 32, height: 32, borderRadius: 6, border: `1px solid ${section.color}70`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: section.color, fontSize: 15, fontWeight: 800, flexShrink: 0 }}>
           {section.marker}
         </span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#E8E4DC", flex: 1, lineHeight: 1.4 }}>{section.title}</span>
-        <span style={{ color: "#6B6963", fontSize: 16 }}>{open ? "−" : "+"}</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: "#E8E4DC", flex: 1, lineHeight: 1.4 }}>{section.title}</span>
+        <span style={{ color: "#6B6963", fontSize: 20 }}>{open ? "−" : "+"}</span>
       </button>
 
       {open && (
         <div style={{ padding: "0 14px 16px" }}>
-          <p style={{ fontSize: 13, color: "#B0ADA6", lineHeight: 1.7, margin: "0 0 14px" }}>{section.intro}</p>
+          <p style={{ fontSize: 16, color: "#B0ADA6", lineHeight: 1.7, margin: "0 0 14px" }}>{section.intro}</p>
 
           <div style={{ background: "#0A0A08", border: `1px solid ${section.color}50`, borderRadius: 8, padding: "12px 14px", marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: section.color, textTransform: "uppercase", marginBottom: 7 }}>公式</div>
-            <div style={{ fontSize: 14, color: section.color, fontWeight: 700, lineHeight: 1.6 }}>{section.formula}</div>
+            <div style={{ fontSize: 13, color: section.color, textTransform: "uppercase", marginBottom: 7, fontWeight: 700 }}>公式</div>
+            <div style={{ fontSize: 16, color: section.color, fontWeight: 700, lineHeight: 1.6 }}>{section.formula}</div>
           </div>
 
           <div style={{ marginBottom: 12 }}>
             {section.steps.map((step, index) => (
               <div key={step} style={{ display: "flex", gap: 9, marginBottom: 8, alignItems: "flex-start" }}>
-                <span style={{ width: 20, height: 20, borderRadius: 5, background: section.color + "20", color: section.color, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
+                <span style={{ width: 24, height: 24, borderRadius: 5, background: section.color + "20", color: section.color, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
                   {index + 1}
                 </span>
-                <span style={{ fontSize: 13, color: "#C8C5BE", lineHeight: 1.6 }}>{step}</span>
+                <span style={{ fontSize: 16, color: "#C8C5BE", lineHeight: 1.65 }}>{step}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ padding: "10px 12px", borderLeft: `3px solid ${section.color}`, background: "#111009", borderRadius: "0 8px 8px 0", fontSize: 12, color: "#9B9890", lineHeight: 1.7 }}>
+          <div style={{ padding: "10px 12px", borderLeft: `3px solid ${section.color}`, background: "#111009", borderRadius: "0 8px 8px 0", fontSize: 15, color: "#9B9890", lineHeight: 1.7 }}>
             {section.note}
           </div>
         </div>
@@ -171,25 +171,25 @@ export default function FormulaGuide({ onBack }) {
         <button
           type="button"
           onClick={onBack}
-          style={{ border: "1px solid #2E2C28", background: "#1A1916", color: "#C8A96E", borderRadius: 8, padding: "7px 10px", fontSize: 12, marginBottom: 14, cursor: "pointer" }}
+          style={{ border: "1px solid #2E2C28", background: "#1A1916", color: "#C8A96E", borderRadius: 8, padding: "9px 12px", fontSize: 15, marginBottom: 14, cursor: "pointer" }}
         >
           返回計算機
         </button>
-        <div style={{ fontSize: 10, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>財務自由計算機</div>
+        <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>財務自由計算機</div>
         <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>計算公式說明</div>
-        <div style={{ fontSize: 12, color: "#5C5A55", marginTop: 6, lineHeight: 1.6 }}>依目前 app 實際公式整理，包含現金、幣別、稅務、熊市與蒙地卡羅。</div>
+        <div style={{ fontSize: 15, color: "#5C5A55", marginTop: 6, lineHeight: 1.6 }}>依目前 app 實際公式整理，包含現金、幣別、稅務、熊市與蒙地卡羅。</div>
       </div>
 
       <div className="guide-content">
         <div className="guide-jump" style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px" }}>
-          <div style={{ fontSize: 12, color: "#6B6963", marginBottom: 10 }}>快速跳到公式</div>
+          <div style={{ fontSize: 15, color: "#6B6963", marginBottom: 10 }}>快速跳到公式</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {SECTIONS.map((section) => (
               <button
                 key={section.id}
                 type="button"
                 onClick={() => setOpenId(section.id)}
-                style={{ padding: "6px 10px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 12, cursor: "pointer" }}
+                style={{ padding: "8px 11px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 15, cursor: "pointer" }}
               >
                 {section.title.replace("怎麼算？", "").replace("怎麼處理？", "")}
               </button>

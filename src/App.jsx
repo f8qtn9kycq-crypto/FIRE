@@ -87,11 +87,12 @@ export default function App() {
         {t.tabs.map((label, i) => (
           <button
             key={label}
+            className="tab-button"
             onClick={() => setTab(i)}
             style={{
               flex: 1,
               padding: "13px 4px",
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: tab === i ? 700 : 400,
               color: tab === i ? "#C8A96E" : "#4A4844",
               background: "none",

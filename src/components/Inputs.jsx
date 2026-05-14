@@ -17,7 +17,7 @@ export default function Inputs({ inp, setInput, ready, res }) {
             borderRadius: 8,
             padding: "14px 16px",
             marginBottom: 20,
-            fontSize: 13,
+            fontSize: 16,
             color: res.fireReadyAtRet ? "#4CAF85" : "#C8953A",
             lineHeight: 1.6,
           }}
@@ -54,14 +54,14 @@ export default function Inputs({ inp, setInput, ready, res }) {
         <NumInput label="投資總額" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500（萬）" />
       </div>
       {(inp.cash > 0 || inp.investments > 0) && (
-        <div style={{ fontSize: 12, color: "#5C5A55", marginBottom: 12, marginTop: -8, paddingLeft: 2 }}>
+        <div style={{ fontSize: 14, color: "#5C5A55", marginBottom: 12, marginTop: -8, paddingLeft: 2, lineHeight: 1.5 }}>
           合計：{fmt(moneyWanToTwd(inp.cash, currency) + moneyWanToTwd(inp.investments, currency), currency)}
         </div>
       )}
       <NumInput label="年支出（現值）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100（萬）" />
       <NumInput label="退休前每年投入金額" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200（萬）" />
       {inp.annualContrib > 0 && inp.retAge > inp.age && (
-        <div style={{ fontSize: 12, color: "#5C5A55", marginBottom: 12, marginTop: -8, paddingLeft: 2 }}>
+        <div style={{ fontSize: 14, color: "#5C5A55", marginBottom: 12, marginTop: -8, paddingLeft: 2, lineHeight: 1.5 }}>
           退休前共投入 {inp.retAge - inp.age} 年，合計 {fmt(moneyWanToTwd(inp.annualContrib, currency) * (inp.retAge - inp.age), currency)}（未含複利）
         </div>
       )}
@@ -76,11 +76,11 @@ export default function Inputs({ inp, setInput, ready, res }) {
       <Divider />
       <SecLabel>稅率設定</SecLabel>
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: "#9B9890", marginBottom: 6 }}>輸入 / 顯示幣別</div>
+        <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 7 }}>輸入 / 顯示幣別</div>
         <select
           value={inp.currencyCode}
           onChange={(e) => setInput("currencyCode", e.target.value)}
-          style={{ width: "100%", padding: "13px 12px", fontSize: 16, background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, color: "#E8E4DC" }}
+          style={{ width: "100%", padding: "15px 12px", fontSize: 19, background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, color: "#E8E4DC" }}
         >
           {Object.keys(CURRENCIES).map((code) => (
             <option key={code} value={code}>

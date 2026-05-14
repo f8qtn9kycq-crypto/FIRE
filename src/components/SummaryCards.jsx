@@ -57,8 +57,8 @@ export function Slider({ label, value, min, max, step, onChange }) {
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 13, color: "#9B9890", flex: 1, paddingRight: 8 }}>{label}</span>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "#E8E4DC", minWidth: 52, textAlign: "right" }}>
+        <span style={{ fontSize: 15, color: "#9B9890", flex: 1, paddingRight: 8 }}>{label}</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: "#E8E4DC", minWidth: 58, textAlign: "right" }}>
           {parseFloat(value).toFixed(1)}%
         </span>
       </div>
@@ -72,8 +72,8 @@ export function Slider({ label, value, min, max, step, onChange }) {
         style={{ width: "100%", height: 36, accentColor: "#C8A96E", cursor: "pointer" }}
       />
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-        <span style={{ fontSize: 11, color: "#3E3C38" }}>{min}%</span>
-        <span style={{ fontSize: 11, color: "#3E3C38" }}>{max}%</span>
+        <span style={{ fontSize: 13, color: "#3E3C38" }}>{min}%</span>
+        <span style={{ fontSize: 13, color: "#3E3C38" }}>{max}%</span>
       </div>
     </div>
   );
@@ -82,10 +82,10 @@ export function Slider({ label, value, min, max, step, onChange }) {
 export function NumInput({ label, isWan = false, value, onChange, placeholder = "0", prefix = "NT$" }) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 12, color: "#9B9890", marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 7 }}>{label}</div>
       <div style={{ display: "flex", alignItems: "center", background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 10, overflow: "hidden" }}>
         {isWan && (
-          <span style={{ padding: "0 10px", fontSize: 13, color: "#C8A96E", fontWeight: 700, borderRight: "1px solid #2E2C28", minWidth: 48, textAlign: "center" }}>
+          <span style={{ padding: "0 10px", fontSize: 15, color: "#C8A96E", fontWeight: 700, borderRight: "1px solid #2E2C28", minWidth: 54, textAlign: "center" }}>
             {prefix}
           </span>
         )}
@@ -94,9 +94,9 @@ export function NumInput({ label, isWan = false, value, onChange, placeholder = 
           placeholder={placeholder}
           value={value === 0 ? "" : value}
           onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-          style={{ flex: 1, padding: "13px 12px", fontSize: 16, background: "transparent", border: "none", outline: "none", color: "#E8E4DC", fontFamily: "monospace", minWidth: 0 }}
+          style={{ flex: 1, padding: "15px 12px", fontSize: 19, background: "transparent", border: "none", outline: "none", color: "#E8E4DC", fontFamily: "monospace", minWidth: 0 }}
         />
-        {isWan && <span style={{ padding: "0 12px", fontSize: 13, color: "#5C5A55", fontWeight: 600 }}>萬</span>}
+        {isWan && <span style={{ padding: "0 12px", fontSize: 15, color: "#5C5A55", fontWeight: 600 }}>萬</span>}
       </div>
     </div>
   );
@@ -106,9 +106,9 @@ export function Card({ label, value, sub, color }) {
   const c = { good: "#4CAF85", warn: "#C8953A", bad: "#C05050" }[color] || "#E8E4DC";
   return (
     <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "13px 11px" }}>
-      <div style={{ fontSize: 10, color: "#5C5A55", textTransform: "uppercase", marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 17, fontWeight: 700, color: c, fontFamily: "monospace", lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: "#5C5A55", marginTop: 5 }}>{sub}</div>}
+      <div style={{ fontSize: 12, color: "#5C5A55", textTransform: "uppercase", marginBottom: 7, lineHeight: 1.35 }}>{label}</div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: c, fontFamily: "monospace", lineHeight: 1.15 }}>{value}</div>
+      {sub && <div style={{ fontSize: 13, color: "#5C5A55", marginTop: 6, lineHeight: 1.35 }}>{sub}</div>}
     </div>
   );
 }
@@ -116,12 +116,12 @@ export function Card({ label, value, sub, color }) {
 export const Divider = () => <div style={{ height: 1, background: "#2E2C28", margin: "20px 0" }} />;
 
 export const SecLabel = ({ children }) => (
-  <div style={{ fontSize: 10, color: "#5C5A55", textTransform: "uppercase", marginBottom: 14 }}>{children}</div>
+  <div style={{ fontSize: 13, color: "#5C5A55", textTransform: "uppercase", marginBottom: 14, fontWeight: 700 }}>{children}</div>
 );
 
 export const Empty = ({ text }) => (
-  <div style={{ textAlign: "center", padding: "56px 24px", color: "#5C5A55", fontSize: 14, lineHeight: 1.8 }}>
-    <div style={{ fontSize: 18, fontWeight: 700, color: "#C8A96E", marginBottom: 14 }}>FIRE</div>
+  <div style={{ textAlign: "center", padding: "56px 24px", color: "#5C5A55", fontSize: 16, lineHeight: 1.8 }}>
+    <div style={{ fontSize: 22, fontWeight: 700, color: "#C8A96E", marginBottom: 14 }}>FIRE</div>
     {text}
   </div>
 );

@@ -4,6 +4,7 @@
 
 html {
   background: #0a0908;
+  font-size: 17px;
 }
 
 body {
@@ -16,6 +17,12 @@ button,
 input,
 select {
   font: inherit;
+}
+
+button,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-shell,
@@ -38,6 +45,10 @@ select {
   width: min(100%, 920px);
   margin: 0 auto;
   padding: 20px 16px 52px;
+}
+
+.tab-button {
+  min-height: 52px;
 }
 
 .tab-bar {
@@ -112,6 +123,10 @@ select {
 }
 
 @media (min-width: 760px) {
+  html {
+    font-size: 18px;
+  }
+
   .app-shell,
   .guide-shell {
     border-left: 1px solid #22201d;
