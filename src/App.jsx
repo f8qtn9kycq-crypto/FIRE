@@ -65,8 +65,8 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: "#0F0E0C", minHeight: "100vh", fontFamily: "'Helvetica Neue', Arial, 'PingFang TC', 'Noto Sans TC', sans-serif", color: "#E8E4DC", maxWidth: 480, margin: "0 auto", paddingBottom: 52 }}>
-      <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid #2E2C28" }}>
+    <div className="app-shell">
+      <div className="app-header">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>{t.headerKicker}</div>
@@ -83,7 +83,7 @@ export default function App() {
         <div style={{ fontSize: 11, color: "#3E3C38", marginTop: 4 }}>{t.subtitle}</div>
       </div>
 
-      <div style={{ display: "flex", borderBottom: "1px solid #2E2C28", background: "#0F0E0C", position: "sticky", top: 0, zIndex: 10 }}>
+      <div className="tab-bar">
         {t.tabs.map((label, i) => (
           <button
             key={label}
@@ -105,7 +105,7 @@ export default function App() {
         ))}
       </div>
 
-      <div style={{ padding: "20px 16px" }}>{panels[tab]}</div>
+      <div className="app-content">{panels[tab]}</div>
     </div>
   );
 }

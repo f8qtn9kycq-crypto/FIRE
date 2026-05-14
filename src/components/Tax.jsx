@@ -9,7 +9,7 @@ export default function Tax({ inp, ready, res, emptyText }) {
 
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 20 }}>
+      <div className="tax-grid" style={{ gap: 8 }}>
         <Card label="資本利得稅" value={`${inp.cgTax}%`} color="warn" />
         <Card label="年稅務損耗" value={fmt(taxDrag, currency)} sub="需額外提領" />
         <Card label="終身稅務總額" value={fmt(lifetimeTax, currency)} color="bad" />

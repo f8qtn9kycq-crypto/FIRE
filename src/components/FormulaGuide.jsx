@@ -166,8 +166,8 @@ export default function FormulaGuide({ onBack }) {
   const [openId, setOpenId] = useState("preRetirement");
 
   return (
-    <div style={{ background: "#0F0E0C", minHeight: "100vh", fontFamily: "'Helvetica Neue', Arial, 'PingFang TC', 'Noto Sans TC', sans-serif", color: "#E8E4DC", maxWidth: 480, margin: "0 auto", paddingBottom: 52 }}>
-      <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid #2E2C28" }}>
+    <div className="guide-shell">
+      <div className="guide-header">
         <button
           type="button"
           onClick={onBack}
@@ -180,31 +180,33 @@ export default function FormulaGuide({ onBack }) {
         <div style={{ fontSize: 12, color: "#5C5A55", marginTop: 6, lineHeight: 1.6 }}>依目前 app 實際公式整理，包含現金、幣別、稅務、熊市與蒙地卡羅。</div>
       </div>
 
-      <div style={{ margin: "16px 16px 8px", background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px" }}>
-        <div style={{ fontSize: 12, color: "#6B6963", marginBottom: 10 }}>快速跳到公式</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      <div className="guide-content">
+        <div className="guide-jump" style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px" }}>
+          <div style={{ fontSize: 12, color: "#6B6963", marginBottom: 10 }}>快速跳到公式</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {SECTIONS.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setOpenId(section.id)}
+                style={{ padding: "6px 10px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 12, cursor: "pointer" }}
+              >
+                {section.title.replace("怎麼算？", "").replace("怎麼處理？", "")}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="guide-sections">
           {SECTIONS.map((section) => (
-            <button
+            <Section
               key={section.id}
-              type="button"
-              onClick={() => setOpenId(section.id)}
-              style={{ padding: "6px 10px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 12, cursor: "pointer" }}
-            >
-              {section.title.replace("怎麼算？", "").replace("怎麼處理？", "")}
-            </button>
+              section={section}
+              open={openId === section.id}
+              onToggle={() => setOpenId(openId === section.id ? null : section.id)}
+            />
           ))}
         </div>
-      </div>
-
-      <div style={{ padding: "8px 16px" }}>
-        {SECTIONS.map((section) => (
-          <Section
-            key={section.id}
-            section={section}
-            open={openId === section.id}
-            onToggle={() => setOpenId(openId === section.id ? null : section.id)}
-          />
-        ))}
       </div>
     </div>
   );

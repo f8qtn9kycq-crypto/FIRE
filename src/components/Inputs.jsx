@@ -29,7 +29,7 @@ export default function Inputs({ inp, setInput, ready, res }) {
       )}
 
       {ready && res && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
+        <div className="summary-grid">
           <Card label="財務自由目標" value={fmt(res.fireTarget, currency)} sub={`${inp.swr}% 提領率`} />
           <Card
             label={res.fireReadyAtRet ? "退休時超額資產" : "退休時資金缺口"}
@@ -44,12 +44,12 @@ export default function Inputs({ inp, setInput, ready, res }) {
 
       <Divider />
       <SecLabel>您的數字</SecLabel>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 4 }}>
+      <div className="age-grid" style={{ gap: 12 }}>
         <NumInput label="目前年齡" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
         <NumInput label="預期壽命" value={inp.lifeExp} onChange={(v) => setInput("lifeExp", v)} placeholder="例：90" />
         <NumInput label="退休年齡" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="money-grid" style={{ gap: 12 }}>
         <NumInput label="現金儲蓄" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500（萬）" />
         <NumInput label="投資總額" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500（萬）" />
       </div>
