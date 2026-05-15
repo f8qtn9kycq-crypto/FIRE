@@ -10,6 +10,19 @@ export default function Inputs({ inp, setInput, ready, res }) {
   return (
     <div>
       {ready && res && (
+        <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px", marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>分析結果摘要</div>
+          <div className="summary-grid" style={{ marginBottom: 0 }}>
+            <Card label="基準情境" value={res.baseSupport.label} sub={res.baseSupport.depleted ? "資產耗盡年齡" : "仍有資產"} color={res.baseSupport.depleted ? "warn" : "good"} />
+            <Card label="30% 熊市衝擊" value={res.bearSupport.label} sub="第1年遭遇市場崩跌" color={res.bearSupport.depleted ? "warn" : "good"} />
+          </div>
+          <div style={{ fontSize: 15, color: "#9B9890", lineHeight: 1.6, marginTop: 12 }}>
+            基準情境可支撐至 <strong style={{ color: "#E8E4DC" }}>{res.baseSupport.label}</strong>；即使第1年遭遇30%市場崩跌，投資組合可支撐至 <strong style={{ color: "#E8E4DC" }}>{res.bearSupport.label}</strong>。
+          </div>
+        </div>
+      )}
+
+      {ready && res && (
         <div
           style={{
             background: res.fireReadyAtRet ? "#0D2B1E" : "#2B1A0D",
@@ -46,7 +59,6 @@ export default function Inputs({ inp, setInput, ready, res }) {
       <SecLabel>您的數字</SecLabel>
       <div className="age-grid" style={{ gap: 12 }}>
         <NumInput label="目前年齡" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
-        <NumInput label="預期壽命" value={inp.lifeExp} onChange={(v) => setInput("lifeExp", v)} placeholder="例：90" />
         <NumInput label="退休年齡" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
       </div>
       <div className="money-grid" style={{ gap: 12 }}>
