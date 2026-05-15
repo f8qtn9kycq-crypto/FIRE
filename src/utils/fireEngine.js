@@ -2,9 +2,12 @@ import { runMC } from "./monteCarlo";
 import { buildScenarioResults, runBearScenario } from "./scenarios";
 import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters";
 
+export const DEFAULT_PLAN_END_AGE = 95;
+export const SUPPORT_MAX_AGE = 120;
+
 export const initialInputs = {
   age: 0,
-  lifeExp: 0,
+  lifeExp: DEFAULT_PLAN_END_AGE,
   cash: 0,
   investments: 0,
   income: 0,
@@ -49,6 +52,10 @@ export function normalizeInputs(value = {}) {
   for (const field of INPUT_NUMBER_FIELDS) {
     const parsed = parseFloat(merged[field]);
     merged[field] = Number.isFinite(parsed) ? parsed : initialInputs[field];
+  }
+
+  if (merged.lifeExp <= merged.age) {
+    merged.lifeExp = Math.max(DEFAULT_PLAN_END_AGE, merged.age + 1);
   }
 
   if (!hadCurrency) {
@@ -106,11 +113,20 @@ export function convertMoneyInputsForCurrency(inputs, nextCurrencyCode) {
 export function isReady(inp) {
   return (
     inp.age > 0 &&
-    inp.lifeExp > inp.age &&
+    inp.retAge >= inp.age &&
     (inp.cash > 0 || inp.investments > 0) &&
-    inp.expenses > 0 &&
-    inp.retAge >= inp.age
+    inp.expenses > 0
   );
+}
+
+function supportAgeFromSeries(series, retAge, maxAge) {
+  const depletedIndex = series.findIndex((value, index) => index > 0 && value <= 0);
+  if (depletedIndex === -1) {
+    return { age: maxAge, label: `至少 ${maxAge} 歲`, depleted: false };
+  }
+
+  const age = retAge + depletedIndex;
+  return { age, label: `${age} 歲`, depleted: true };
 }
 
 export function runProjection(saved, retPost, inf, cgTax, expenses, retYears, shockYr1 = 0) {
@@ -142,7 +158,8 @@ export function getRiskScores({ inp, res }) {
 export function calculateResults(inp) {
   if (!isReady(inp)) return null;
 
-  const { age, lifeExp, retAge, retPre, retPost, swr, inf } = inp;
+  const { age, retAge, retPre, retPost, swr, inf } = inp;
+  const lifeExp = Math.max(inp.lifeExp || DEFAULT_PLAN_END_AGE, retAge + 1);
   const currency = CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
   const cgTax = Number.isFinite(inp.cgTax) ? inp.cgTax : defaultCgTaxForCurrency(currency.code);
   const cash = moneyWanToTwd(inp.cash, currency);
@@ -168,6 +185,11 @@ export function calculateResults(inp) {
   const fireTarget = expenses / (swr / 100);
   const baseData = runProjection(portAtRet, rPost, rInf, rCG, expenses, retYears);
   const bearData = runBearScenario(portAtRet, rPost, rInf, rCG, expenses, retYears);
+  const supportYears = Math.max(1, SUPPORT_MAX_AGE - retAge);
+  const baseSupportData = runProjection(portAtRet, rPost, rInf, rCG, expenses, supportYears);
+  const bearSupportData = runBearScenario(portAtRet, rPost, rInf, rCG, expenses, supportYears);
+  const baseSupport = supportAgeFromSeries(baseSupportData, retAge, SUPPORT_MAX_AGE);
+  const bearSupport = supportAgeFromSeries(bearSupportData, retAge, SUPPORT_MAX_AGE);
   const spendData = Array.from({ length: retYears + 1 }, (_, y) =>
     Math.round(expenses * Math.pow(1 + rInf, y)),
   );
@@ -193,6 +215,8 @@ export function calculateResults(inp) {
     fireTarget,
     baseData,
     bearData,
+    baseSupport,
+    bearSupport,
     spendData,
     mcData,
     yToRet,
