@@ -147,6 +147,101 @@ select:focus-visible {
   color: #d56b6b;
 }
 
+.phase-summary-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+  border: 1px solid #2e2c28;
+  border-radius: 8px;
+  background: #171612;
+}
+
+.phase-summary-card.good {
+  border-color: #1d5c3a;
+  background: #0d2119;
+}
+
+.phase-summary-card.warn {
+  border-color: #5c3a1d;
+  background: #24190e;
+}
+
+.phase-summary-card.bad {
+  border-color: #693030;
+  background: #251313;
+}
+
+.phase-summary-kicker {
+  color: #c8a96e;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.phase-summary-card h2 {
+  margin: 0;
+  color: #e8e4dc;
+  font-size: 26px;
+  line-height: 1.22;
+}
+
+.phase-summary-card p {
+  margin: 0;
+  color: #b0ada6;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.phase-summary-rate {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #0f0e0c;
+  border: 1px solid #2e2c28;
+}
+
+.phase-summary-rate span {
+  color: #c8a96e;
+  font-size: 34px;
+  font-weight: 900;
+  font-family: monospace;
+  line-height: 1;
+}
+
+.phase-summary-rate strong {
+  color: #9b9890;
+  font-size: 15px;
+}
+
+.phase-summary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.phase-summary-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #24221e;
+}
+
+.phase-summary-list span {
+  color: #8f8a80;
+  font-size: 15px;
+}
+
+.phase-summary-list strong {
+  color: #e8e4dc;
+  font-size: 16px;
+  text-align: right;
+  line-height: 1.4;
+}
+
 .advanced-panel {
   margin-top: 18px;
   border: 1px solid #2e2c28;
@@ -178,6 +273,54 @@ select:focus-visible {
 
 .advanced-body {
   padding: 0 16px 16px;
+}
+
+.setting-panel {
+  margin-bottom: 12px;
+  border: 1px solid #25231f;
+  border-radius: 8px;
+  background: #111009;
+  overflow: hidden;
+}
+
+.setting-panel summary {
+  min-height: 52px;
+  padding: 14px;
+  color: #c8a96e;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.setting-panel > :not(summary) {
+  margin-left: 14px;
+  margin-right: 14px;
+}
+
+.setting-note,
+.input-helper {
+  color: #6b6963;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.setting-note {
+  padding-bottom: 14px;
+}
+
+.input-helper {
+  margin: -8px 0 12px;
+  padding-left: 2px;
+}
+
+.field-block {
+  margin-bottom: 16px;
+}
+
+.field-block label {
+  display: block;
+  color: #9b9890;
+  font-size: 15px;
+  margin-bottom: 7px;
 }
 
 .control-block {
@@ -700,12 +843,11 @@ select:focus-visible {
   }
 
   .app-content {
-    padding: 28px 28px 120px;
+    padding: 28px 28px 64px;
   }
 
   .sticky-summary {
-    padding-left: 28px;
-    padding-right: 28px;
+    display: none;
   }
 
   .summary-grid {
