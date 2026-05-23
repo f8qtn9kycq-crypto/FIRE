@@ -13,7 +13,7 @@ export default function Projection({ inp, ready, res, emptyText }) {
     <div>
       <SecLabel>投資組合成長預測</SecLabel>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 14 }}>
-        <MiniChart data={baseData} color="#C8A96E" height={120} />
+        <MiniChart data={baseData} color="#C8A96E" height={300} startAge={inp.retAge} currency={currency} />
         <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
           {[["基準情境", "#C8A96E"], ["熊市第1年", "#C05050"]].map(([label, color]) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#9B9890" }}>
@@ -26,15 +26,15 @@ export default function Projection({ inp, ready, res, emptyText }) {
 
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 14 }}>
         <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 10 }}>熊市情境（第1年 −30%）</div>
-        <MiniChart data={bearData} color="#C05050" height={80} />
+        <MiniChart data={bearData} color="#C05050" height={280} startAge={inp.retAge} currency={currency} />
       </div>
 
       <Divider />
       <SecLabel>通膨調整後年支出</SecLabel>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 14 }}>
-        <MiniChart data={spendData} color="#5B9BD5" height={80} />
+        <MiniChart data={spendData} color="#5B9BD5" height={260} startAge={inp.retAge} currency={currency} />
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginTop: 10, fontSize: 15, color: "#9B9890", lineHeight: 1.45, flexWrap: "wrap" }}>
-          <span>今日：{fmt(res.expensesRaw, currency)}/年</span>
+          <span>退休時：{fmt(res.retirementExpensesRaw, currency)}/年</span>
           <span>{inp.lifeExp}歲：{fmt(spendData[spendData.length - 1], currency)}/年</span>
         </div>
       </div>

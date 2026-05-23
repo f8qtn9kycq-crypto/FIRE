@@ -16,11 +16,11 @@ export default function Tax({ inp, ready, res, emptyText }) {
       </div>
 
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px", marginBottom: 20 }}>
-        <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 14 }}>總提領 vs 淨提領（今日）</div>
+        <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 14 }}>總提領 vs 淨提領（退休時）</div>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-end" }}>
           {[
             ["需總提領", grossAtRet, "#5B9BD5", 1],
-            ["實際支出", res.expensesRaw, "#4CAF85", res.expensesRaw / grossAtRet],
+            ["實際支出", res.retirementExpensesRaw, "#4CAF85", res.retirementExpensesRaw / grossAtRet],
           ].map(([label, value, color, ratio]) => (
             <div key={label} style={{ flex: 1, textAlign: "center" }}>
               <div style={{ height: Math.max(8, Math.round(80 * ratio)), background: color, borderRadius: "6px 6px 0 0", marginBottom: 8, opacity: 0.85 }} />
@@ -32,7 +32,7 @@ export default function Tax({ inp, ready, res, emptyText }) {
       </div>
 
       {[
-        ["#4CAF85", `以 ${inp.cgTax}% 資本利得稅計算，您需提領 ${fmt(grossAtRet, currency)}/年（稅前）才能獲得 ${fmt(res.expensesRaw, currency)}/年。每年稅務損耗 ${fmt(taxDrag, currency)}。`],
+        ["#4CAF85", `以 ${inp.cgTax}% 資本利得稅計算，您退休時需提領 ${fmt(grossAtRet, currency)}/年（稅前）才能獲得 ${fmt(res.retirementExpensesRaw, currency)}/年。每年稅務損耗 ${fmt(taxDrag, currency)}。`],
         [
           "#5B9BD5",
           inp.currencyCode === "TWD"
