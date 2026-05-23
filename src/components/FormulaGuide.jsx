@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const SECTIONS = [
   {
@@ -121,42 +121,47 @@ const SECTIONS = [
   },
 ];
 
-function Section({ section, open, onToggle }) {
+function Section({ section, open, onToggle, refCallback }) {
   return (
-    <div style={{ marginBottom: 12, background: "#1A1916", border: `1px solid ${open ? section.color + "70" : "#2E2C28"}`, borderRadius: 8, overflow: "hidden" }}>
+    <div
+      ref={refCallback}
+      className={`guide-section-card ${open ? "is-open" : ""}`}
+      style={{ "--section-color": section.color }}
+    >
       <button
         type="button"
+        aria-expanded={open}
         onClick={onToggle}
-        style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "15px 14px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+        className="guide-section-button"
       >
-        <span style={{ width: 32, height: 32, borderRadius: 6, border: `1px solid ${section.color}70`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: section.color, fontSize: 15, fontWeight: 800, flexShrink: 0 }}>
+        <span className="guide-section-marker">
           {section.marker}
         </span>
-        <span style={{ fontSize: 17, fontWeight: 700, color: "#E8E4DC", flex: 1, lineHeight: 1.4 }}>{section.title}</span>
-        <span style={{ color: "#6B6963", fontSize: 20 }}>{open ? "−" : "+"}</span>
+        <span className="guide-section-title">{section.title}</span>
+        <span className="guide-section-toggle">{open ? "−" : "+"}</span>
       </button>
 
       {open && (
-        <div style={{ padding: "0 14px 16px" }}>
-          <p style={{ fontSize: 16, color: "#B0ADA6", lineHeight: 1.7, margin: "0 0 14px" }}>{section.intro}</p>
+        <div className="guide-section-content">
+          <p className="guide-section-intro">{section.intro}</p>
 
-          <div style={{ background: "#0A0A08", border: `1px solid ${section.color}50`, borderRadius: 8, padding: "12px 14px", marginBottom: 14 }}>
-            <div style={{ fontSize: 13, color: section.color, textTransform: "uppercase", marginBottom: 7, fontWeight: 700 }}>公式</div>
-            <div style={{ fontSize: 16, color: section.color, fontWeight: 700, lineHeight: 1.6 }}>{section.formula}</div>
+          <div className="guide-formula-box">
+            <div className="guide-formula-label">公式</div>
+            <div className="guide-formula-text">{section.formula}</div>
           </div>
 
-          <div style={{ marginBottom: 12 }}>
+          <div className="guide-steps">
             {section.steps.map((step, index) => (
-              <div key={step} style={{ display: "flex", gap: 9, marginBottom: 8, alignItems: "flex-start" }}>
-                <span style={{ width: 24, height: 24, borderRadius: 5, background: section.color + "20", color: section.color, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
+              <div key={step} className="guide-step">
+                <span className="guide-step-index">
                   {index + 1}
                 </span>
-                <span style={{ fontSize: 16, color: "#C8C5BE", lineHeight: 1.65 }}>{step}</span>
+                <span>{step}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ padding: "10px 12px", borderLeft: `3px solid ${section.color}`, background: "#111009", borderRadius: "0 8px 8px 0", fontSize: 15, color: "#9B9890", lineHeight: 1.7 }}>
+          <div className="guide-note">
             {section.note}
           </div>
         </div>
@@ -167,6 +172,30 @@ function Section({ section, open, onToggle }) {
 
 export default function FormulaGuide({ onBack }) {
   const [openId, setOpenId] = useState("preRetirement");
+  const sectionRefs = useRef({});
+
+  const scrollToSection = (sectionId) => {
+    requestAnimationFrame(() => {
+      sectionRefs.current[sectionId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  };
+
+  const openSection = (sectionId) => {
+    setOpenId(sectionId);
+    scrollToSection(sectionId);
+  };
+
+  const toggleSection = (sectionId) => {
+    const nextId = openId === sectionId ? null : sectionId;
+    setOpenId(nextId);
+
+    if (nextId) {
+      scrollToSection(nextId);
+    }
+  };
 
   return (
     <div className="guide-shell">
@@ -191,7 +220,7 @@ export default function FormulaGuide({ onBack }) {
               <button
                 key={section.id}
                 type="button"
-                onClick={() => setOpenId(section.id)}
+                onClick={() => openSection(section.id)}
                 style={{ padding: "8px 11px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 15, cursor: "pointer" }}
               >
                 {section.title.replace("怎麼算？", "").replace("怎麼處理？", "")}
@@ -206,7 +235,10 @@ export default function FormulaGuide({ onBack }) {
               key={section.id}
               section={section}
               open={openId === section.id}
-              onToggle={() => setOpenId(openId === section.id ? null : section.id)}
+              onToggle={() => toggleSection(section.id)}
+              refCallback={(el) => {
+                sectionRefs.current[section.id] = el;
+              }}
             />
           ))}
         </div>
