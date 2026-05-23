@@ -174,6 +174,7 @@ export function calculateResults(inp) {
   const rCG = cgTax / 100;
   const yToRet = Math.max(0, retAge - age);
   const retYears = Math.max(1, lifeExp - retAge);
+  const retirementExpenses = expenses * Math.pow(1 + rInf, yToRet);
 
   let investmentsAtRet = investments;
   for (let y = 0; y < yToRet; y++) {
@@ -182,31 +183,32 @@ export function calculateResults(inp) {
 
   const portAtRet = cash + investmentsAtRet;
 
-  const fireTarget = expenses / (swr / 100);
-  const baseData = runProjection(portAtRet, rPost, rInf, rCG, expenses, retYears);
-  const bearData = runBearScenario(portAtRet, rPost, rInf, rCG, expenses, retYears);
+  const currentFireTarget = expenses / (swr / 100);
+  const fireTarget = retirementExpenses / (swr / 100);
+  const baseData = runProjection(portAtRet, rPost, rInf, rCG, retirementExpenses, retYears);
+  const bearData = runBearScenario(portAtRet, rPost, rInf, rCG, retirementExpenses, retYears);
   const supportYears = Math.max(1, SUPPORT_MAX_AGE - retAge);
-  const baseSupportData = runProjection(portAtRet, rPost, rInf, rCG, expenses, supportYears);
-  const bearSupportData = runBearScenario(portAtRet, rPost, rInf, rCG, expenses, supportYears);
+  const baseSupportData = runProjection(portAtRet, rPost, rInf, rCG, retirementExpenses, supportYears);
+  const bearSupportData = runBearScenario(portAtRet, rPost, rInf, rCG, retirementExpenses, supportYears);
   const baseSupport = supportAgeFromSeries(baseSupportData, retAge, SUPPORT_MAX_AGE);
   const bearSupport = supportAgeFromSeries(bearSupportData, retAge, SUPPORT_MAX_AGE);
   const spendData = Array.from({ length: retYears + 1 }, (_, y) =>
-    Math.round(expenses * Math.pow(1 + rInf, y)),
+    Math.round(retirementExpenses * Math.pow(1 + rInf, y)),
   );
   const mcData = runMC(
     portAtRet,
     rPost,
     rInf,
     rCG,
-    expenses,
+    retirementExpenses,
     retYears,
     300,
-    JSON.stringify({ age, lifeExp, retAge, rPost, rInf, rCG, expenses, portAtRet }),
+    JSON.stringify({ age, lifeExp, retAge, rPost, rInf, rCG, retirementExpenses, portAtRet }),
   );
-  const grossAtRet = Math.round(expenses / (1 - rCG));
-  const taxDrag = grossAtRet - expenses;
+  const grossAtRet = Math.round(retirementExpenses / (1 - rCG));
+  const taxDrag = grossAtRet - retirementExpenses;
   const lifetimeTax = Math.round(taxDrag * retYears * Math.pow(1 + rInf, retYears / 2));
-  const currentAlreadyFIRE = saved >= fireTarget;
+  const currentAlreadyFIRE = saved >= currentFireTarget;
   const fireReadyAtRet = portAtRet >= fireTarget;
   const assessmentPortfolio = portAtRet;
 
@@ -231,6 +233,8 @@ export function calculateResults(inp) {
     investmentsAtRet,
     savedRaw: saved,
     expensesRaw: expenses,
+    retirementExpensesRaw: retirementExpenses,
+    currentFireTarget,
     assessmentPortfolio,
     assessmentGap: assessmentPortfolio - fireTarget,
     grossW: assessmentPortfolio * (swr / 100),
@@ -243,7 +247,7 @@ export function calculateResults(inp) {
       retPost,
       inf,
       rCG,
-      expenses,
+      expenses: retirementExpenses,
       retYears,
       lifeExp,
       project: runProjection,
