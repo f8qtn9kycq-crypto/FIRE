@@ -34,12 +34,13 @@ const SECTIONS = [
     marker: "2",
     title: "財務自由目標怎麼算？",
     color: "#C8A96E",
-    intro: "FIRE 目標是用你的年度支出與安全提領率反推需要多少本金。",
-    formula: "財務自由目標 = 年支出 ÷ 安全提領率",
+    intro: "FIRE 目標會先把今日年支出通膨到退休當年，再用安全提領率反推需要多少本金。",
+    formula: "財務自由目標 = 退休時年支出 ÷ 安全提領率",
     steps: [
-      "如果年支出是 NT$100 萬。",
+      "如果今日年支出是 NT$100 萬。",
+      "先用通膨率推算退休當年的年支出。",
       "安全提領率設為 3.5%。",
-      "目標 = 100 萬 ÷ 3.5% = 約 NT$2857 萬。",
+      "目標 = 退休時年支出 ÷ 3.5%。",
     ],
     note: "安全提領率越低，目標資產越高；退休期越長，通常越需要保守。",
   },
@@ -52,9 +53,10 @@ const SECTIONS = [
     formula: "年底資產 = 年初資產 × (1 + 退休後報酬率) − 稅前提領金額",
     steps: [
       "先用退休時投資組合作為第 0 年資產。",
-      "每年支出會依通膨率上升。",
+      "第 0 年支出會先使用退休當年的通膨後支出。",
+      "退休後每年支出會再依通膨率上升。",
       "如果有資本利得稅，會先 gross up 成稅前提領金額。",
-      "重複計算到預期壽命。",
+      "重複計算到內部預設規劃年齡。",
     ],
     note: "預測頁的基準曲線、風險頁的情境期末資產，都是從這個公式延伸出來。",
   },
@@ -64,11 +66,12 @@ const SECTIONS = [
     title: "通膨調整怎麼算？",
     color: "#5B9BD5",
     intro: "未來每年的生活費會因通膨增加，所以不能只用今天的年支出一路扣到底。",
-    formula: "第 N 年支出 = 今日年支出 × (1 + 通膨率)^N",
+    formula: "退休時年支出 = 今日年支出 × (1 + 通膨率)^距退休年數",
     steps: [
       "今日年支出 NT$100 萬。",
       "通膨率 2.5%。",
-      "第 10 年支出約為 100 萬 × 1.025^10。",
+      "如果 10 年後退休，退休時支出約為 100 萬 × 1.025^10。",
+      "退休後每一年再從退休時支出繼續往上調整。",
     ],
     note: "通膨越高，越後面的退休生活費越重，資產消耗速度也會加快。",
   },
@@ -106,7 +109,7 @@ const SECTIONS = [
     marker: "7",
     title: "蒙地卡羅模擬怎麼算？",
     color: "#C8953A",
-    intro: "app 會跑 300 次退休路徑，統計有多少次資產能撐到預期壽命。",
+    intro: "app 會跑 300 次退休路徑，統計有多少次資產能撐到內部預設規劃年齡。",
     formula: "每年報酬率 = 退休後報酬率 + 固定種子隨機波動（約 ±5 個百分點）",
     steps: [
       "每次模擬都從退休時投資組合開始。",
@@ -126,34 +129,34 @@ function Section({ section, open, onToggle }) {
         onClick={onToggle}
         style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "15px 14px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
       >
-        <span style={{ width: 28, height: 28, borderRadius: 6, border: `1px solid ${section.color}70`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: section.color, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
+        <span style={{ width: 32, height: 32, borderRadius: 6, border: `1px solid ${section.color}70`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: section.color, fontSize: 15, fontWeight: 800, flexShrink: 0 }}>
           {section.marker}
         </span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#E8E4DC", flex: 1, lineHeight: 1.4 }}>{section.title}</span>
-        <span style={{ color: "#6B6963", fontSize: 16 }}>{open ? "−" : "+"}</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: "#E8E4DC", flex: 1, lineHeight: 1.4 }}>{section.title}</span>
+        <span style={{ color: "#6B6963", fontSize: 20 }}>{open ? "−" : "+"}</span>
       </button>
 
       {open && (
         <div style={{ padding: "0 14px 16px" }}>
-          <p style={{ fontSize: 13, color: "#B0ADA6", lineHeight: 1.7, margin: "0 0 14px" }}>{section.intro}</p>
+          <p style={{ fontSize: 16, color: "#B0ADA6", lineHeight: 1.7, margin: "0 0 14px" }}>{section.intro}</p>
 
           <div style={{ background: "#0A0A08", border: `1px solid ${section.color}50`, borderRadius: 8, padding: "12px 14px", marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: section.color, textTransform: "uppercase", marginBottom: 7 }}>公式</div>
-            <div style={{ fontSize: 14, color: section.color, fontWeight: 700, lineHeight: 1.6 }}>{section.formula}</div>
+            <div style={{ fontSize: 13, color: section.color, textTransform: "uppercase", marginBottom: 7, fontWeight: 700 }}>公式</div>
+            <div style={{ fontSize: 16, color: section.color, fontWeight: 700, lineHeight: 1.6 }}>{section.formula}</div>
           </div>
 
           <div style={{ marginBottom: 12 }}>
             {section.steps.map((step, index) => (
               <div key={step} style={{ display: "flex", gap: 9, marginBottom: 8, alignItems: "flex-start" }}>
-                <span style={{ width: 20, height: 20, borderRadius: 5, background: section.color + "20", color: section.color, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
+                <span style={{ width: 24, height: 24, borderRadius: 5, background: section.color + "20", color: section.color, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
                   {index + 1}
                 </span>
-                <span style={{ fontSize: 13, color: "#C8C5BE", lineHeight: 1.6 }}>{step}</span>
+                <span style={{ fontSize: 16, color: "#C8C5BE", lineHeight: 1.65 }}>{step}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ padding: "10px 12px", borderLeft: `3px solid ${section.color}`, background: "#111009", borderRadius: "0 8px 8px 0", fontSize: 12, color: "#9B9890", lineHeight: 1.7 }}>
+          <div style={{ padding: "10px 12px", borderLeft: `3px solid ${section.color}`, background: "#111009", borderRadius: "0 8px 8px 0", fontSize: 15, color: "#9B9890", lineHeight: 1.7 }}>
             {section.note}
           </div>
         </div>
@@ -166,45 +169,47 @@ export default function FormulaGuide({ onBack }) {
   const [openId, setOpenId] = useState("preRetirement");
 
   return (
-    <div style={{ background: "#0F0E0C", minHeight: "100vh", fontFamily: "'Helvetica Neue', Arial, 'PingFang TC', 'Noto Sans TC', sans-serif", color: "#E8E4DC", maxWidth: 480, margin: "0 auto", paddingBottom: 52 }}>
-      <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid #2E2C28" }}>
+    <div className="guide-shell">
+      <div className="guide-header">
         <button
           type="button"
           onClick={onBack}
-          style={{ border: "1px solid #2E2C28", background: "#1A1916", color: "#C8A96E", borderRadius: 8, padding: "7px 10px", fontSize: 12, marginBottom: 14, cursor: "pointer" }}
+          style={{ border: "1px solid #2E2C28", background: "#1A1916", color: "#C8A96E", borderRadius: 8, padding: "9px 12px", fontSize: 15, marginBottom: 14, cursor: "pointer" }}
         >
           返回計算機
         </button>
-        <div style={{ fontSize: 10, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>財務自由計算機</div>
+        <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>財務自由計算機</div>
         <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>計算公式說明</div>
-        <div style={{ fontSize: 12, color: "#5C5A55", marginTop: 6, lineHeight: 1.6 }}>依目前 app 實際公式整理，包含現金、幣別、稅務、熊市與蒙地卡羅。</div>
+        <div style={{ fontSize: 15, color: "#5C5A55", marginTop: 6, lineHeight: 1.6 }}>依目前 app 實際公式整理，包含現金、幣別、稅務、熊市與蒙地卡羅。</div>
       </div>
 
-      <div style={{ margin: "16px 16px 8px", background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px" }}>
-        <div style={{ fontSize: 12, color: "#6B6963", marginBottom: 10 }}>快速跳到公式</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      <div className="guide-content">
+        <div className="guide-jump" style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px" }}>
+          <div style={{ fontSize: 15, color: "#6B6963", marginBottom: 10 }}>快速跳到公式</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {SECTIONS.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setOpenId(section.id)}
+                style={{ padding: "8px 11px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 15, cursor: "pointer" }}
+              >
+                {section.title.replace("怎麼算？", "").replace("怎麼處理？", "")}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="guide-sections">
           {SECTIONS.map((section) => (
-            <button
+            <Section
               key={section.id}
-              type="button"
-              onClick={() => setOpenId(section.id)}
-              style={{ padding: "6px 10px", borderRadius: 7, border: `1px solid ${openId === section.id ? section.color : "#2E2C28"}`, background: openId === section.id ? section.color + "20" : "#111009", color: openId === section.id ? section.color : "#9B9890", fontSize: 12, cursor: "pointer" }}
-            >
-              {section.title.replace("怎麼算？", "").replace("怎麼處理？", "")}
-            </button>
+              section={section}
+              open={openId === section.id}
+              onToggle={() => setOpenId(openId === section.id ? null : section.id)}
+            />
           ))}
         </div>
-      </div>
-
-      <div style={{ padding: "8px 16px" }}>
-        {SECTIONS.map((section) => (
-          <Section
-            key={section.id}
-            section={section}
-            open={openId === section.id}
-            onToggle={() => setOpenId(openId === section.id ? null : section.id)}
-          />
-        ))}
       </div>
     </div>
   );

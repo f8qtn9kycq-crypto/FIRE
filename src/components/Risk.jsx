@@ -9,8 +9,8 @@ function RiskBar({ label, val }) {
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
-        <span style={{ fontSize: 13, color: "#9B9890" }}>{label}</span>
-        <span style={{ fontSize: 12, fontWeight: 700, color }}>{level}</span>
+        <span style={{ fontSize: 16, color: "#9B9890" }}>{label}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color }}>{level}</span>
       </div>
       <div style={{ height: 7, background: "#2E2C28", borderRadius: 99, overflow: "hidden" }}>
         <div style={{ width: `${val}%`, height: "100%", background: color, borderRadius: 99, transition: "width 0.4s" }} />
@@ -37,7 +37,7 @@ export default function Risk({ inp, ready, res, emptyText }) {
           borderRadius: 8,
           padding: "14px 16px",
           marginBottom: 20,
-          fontSize: 13,
+          fontSize: 16,
           color: bearOk ? "#4CAF85" : "#C8953A",
           lineHeight: 1.6,
         }}
@@ -57,7 +57,7 @@ export default function Risk({ inp, ready, res, emptyText }) {
       <SecLabel>蒙地卡羅模擬（300次）</SecLabel>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 12 }}>
         <MiniChart data={mcData} color={survFinal >= 90 ? "#4CAF85" : survFinal >= 70 ? "#C8953A" : "#C05050"} height={100} />
-        <div style={{ marginTop: 14, fontSize: 13, color: "#9B9890", lineHeight: 1.7 }}>
+        <div style={{ marginTop: 14, fontSize: 16, color: "#9B9890", lineHeight: 1.7 }}>
           {inp.lifeExp}歲存活機率：{" "}
           <strong style={{ color: survFinal >= 90 ? "#4CAF85" : survFinal >= 70 ? "#C8953A" : "#C05050", fontSize: 22 }}>{survFinal}%</strong>
           <br />
@@ -67,14 +67,14 @@ export default function Risk({ inp, ready, res, emptyText }) {
 
       <Divider />
       <SecLabel>情境模擬</SecLabel>
-      <div style={{ fontSize: 12, color: "#5C5A55", marginBottom: 12, padding: "8px 12px", background: "#1A1916", borderRadius: 8 }}>
+      <div style={{ fontSize: 15, color: "#5C5A55", marginBottom: 12, padding: "10px 12px", background: "#1A1916", borderRadius: 8, lineHeight: 1.55 }}>
         計算起點：退休時投資組合 <strong style={{ color: "#C8A96E" }}>{fmt(portAtRet, currency)}</strong>
         {inp.retAge > inp.age ? `（現金不計投資複利；投資含退休前 ${inp.retAge - inp.age} 年複利＋每年投入 ${fmt(moneyWanToTwd(inp.annualContrib, currency), currency)}）` : ""}
       </div>
       {res.scenarioResults.map(({ lbl, end }) => (
         <div key={lbl} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #1E1C18" }}>
-          <span style={{ fontSize: 12, color: "#9B9890", flex: 1, paddingRight: 12 }}>{lbl}</span>
-          <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: end > 0 ? "#4CAF85" : "#C05050" }}>
+          <span style={{ fontSize: 15, color: "#9B9890", flex: 1, paddingRight: 12, lineHeight: 1.45 }}>{lbl}</span>
+          <span style={{ fontSize: 16, fontWeight: 700, fontFamily: "monospace", color: end > 0 ? "#4CAF85" : "#C05050", lineHeight: 1.35 }}>
             {end > 0 ? fmt(end, currency) : "資產耗盡"}
           </span>
         </div>

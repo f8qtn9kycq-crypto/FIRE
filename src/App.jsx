@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import FAQ from "./components/FAQ";
 import Inputs from "./components/Inputs";
 import FormulaGuide from "./components/FormulaGuide";
 import Projection from "./components/Projection";
@@ -15,11 +16,25 @@ import {
   parseInputsFromSearch,
   serializeInputsToSearch,
 } from "./utils/fireEngine";
+import { fmt } from "./utils/formatters";
+
+function getPlanStory(res) {
+  if (!res) return { status: "先填核心數字", tone: "neutral", success: null };
+
+  const success = res.mcData?.length ? res.mcData[res.mcData.length - 1] : null;
+  if (success >= 85 && res.fireReadyAtRet) {
+    return { status: "相對穩健", tone: "good", success };
+  }
+  if (success >= 65 || res.fireReadyAtRet) {
+    return { status: "接近可行", tone: "warn", success };
+  }
+  return { status: "需要調整", tone: "bad", success };
+}
 
 export default function App() {
   const t = zhTW;
   const [tab, setTab] = useState(0);
-  const [showGuide, setShowGuide] = useState(false);
+  const [activePage, setActivePage] = useState("calculator");
   const urlInputs = useMemo(() => {
     if (typeof window === "undefined") return null;
     return parseInputsFromSearch(window.location.search);
@@ -31,6 +46,7 @@ export default function App() {
 
   const ready = useMemo(() => isReady(inp), [inp]);
   const res = useMemo(() => calculateResults(inp), [inp]);
+  const story = useMemo(() => getPlanStory(res), [res]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -53,45 +69,58 @@ export default function App() {
     setInp((prev) => ({ ...prev, [key]: value }));
   };
 
+  const showDetails = () => {
+    setTab(1);
+    window.requestAnimationFrame(() => {
+      document.querySelector(".tab-bar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   const panels = [
-    <Inputs inp={inp} setInput={setInput} ready={ready} res={res} />,
+    <Inputs inp={inp} setInput={setInput} ready={ready} res={res} story={story} />,
     <Projection inp={inp} ready={ready} res={res} emptyText={t.empty} />,
     <Risk inp={inp} ready={ready} res={res} emptyText={t.empty} />,
     <Tax inp={inp} ready={ready} res={res} emptyText={t.empty} />,
   ];
 
-  if (showGuide) {
-    return <FormulaGuide onBack={() => setShowGuide(false)} />;
+  if (activePage === "guide") {
+    return <FormulaGuide onBack={() => setActivePage("calculator")} />;
+  }
+
+  if (activePage === "faq") {
+    return <FAQ onBack={() => setActivePage("calculator")} />;
   }
 
   return (
-    <div style={{ background: "#0F0E0C", minHeight: "100vh", fontFamily: "'Helvetica Neue', Arial, 'PingFang TC', 'Noto Sans TC', sans-serif", color: "#E8E4DC", maxWidth: 480, margin: "0 auto", paddingBottom: 52 }}>
-      <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid #2E2C28" }}>
+    <div className="app-shell">
+      <div className="app-header">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>{t.headerKicker}</div>
             <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>{t.title}</div>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowGuide(true)}
-            style={{ border: "1px solid #2E2C28", background: "#1A1916", color: "#C8A96E", borderRadius: 8, padding: "8px 10px", fontSize: 12, cursor: "pointer", flexShrink: 0 }}
-          >
-            公式
-          </button>
+          <div className="header-actions">
+            <button type="button" onClick={() => setActivePage("faq")}>
+              FAQ
+            </button>
+            <button type="button" onClick={() => setActivePage("guide")}>
+              公式
+            </button>
+          </div>
         </div>
         <div style={{ fontSize: 11, color: "#3E3C38", marginTop: 4 }}>{t.subtitle}</div>
       </div>
 
-      <div style={{ display: "flex", borderBottom: "1px solid #2E2C28", background: "#0F0E0C", position: "sticky", top: 0, zIndex: 10 }}>
+      <div className="tab-bar">
         {t.tabs.map((label, i) => (
           <button
             key={label}
+            className="tab-button"
             onClick={() => setTab(i)}
             style={{
               flex: 1,
               padding: "13px 4px",
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: tab === i ? 700 : 400,
               color: tab === i ? "#C8A96E" : "#4A4844",
               background: "none",
@@ -105,7 +134,19 @@ export default function App() {
         ))}
       </div>
 
-      <div style={{ padding: "20px 16px" }}>{panels[tab]}</div>
+      <div className="app-content">{panels[tab]}</div>
+      <div className={`sticky-summary ${ready && res ? "is-ready" : ""}`}>
+        <div>
+          <div className={`sticky-status ${story.tone}`}>{story.status}</div>
+          <div className="sticky-metrics">
+            {story.success === null ? "填完核心數字即可試算" : `${story.success}% 成功率`}
+            {res ? <span>{fmt(res.portAtRet, res.currency)}</span> : null}
+          </div>
+        </div>
+        <button type="button" onClick={showDetails} disabled={!ready || !res}>
+          查看詳細
+        </button>
+      </div>
     </div>
   );
 }
