@@ -398,6 +398,194 @@ select:focus-visible {
   color: #e8e4dc;
 }
 
+.num-input-block {
+  margin-bottom: 16px;
+}
+
+.num-input-label {
+  display: block;
+  font-size: 15px;
+  color: #9b9890;
+  margin-bottom: 7px;
+}
+
+.num-input-wrapper {
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  overflow: hidden;
+  background: #1a1916;
+  border: 1px solid #2e2c28;
+  border-radius: 10px;
+}
+
+.num-input-prefix {
+  min-width: 54px;
+  padding: 0 10px;
+  border-right: 1px solid #2e2c28;
+  color: #c8a96e;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.num-input-control {
+  flex: 1;
+  min-width: 0;
+  padding: 15px 12px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #e8e4dc;
+  font-family: monospace;
+  font-size: 19px;
+}
+
+.num-input-suffix {
+  flex-shrink: 0;
+  padding: 0 12px;
+  color: #5c5a55;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.readiness-card {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid #2e2c28;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #15130f;
+}
+
+.readiness-card.good {
+  border-left-color: #4caf85;
+  background: #0d2119;
+}
+
+.readiness-card.warn {
+  border-left-color: #c8953a;
+  background: #24190e;
+}
+
+.readiness-header span {
+  display: block;
+  margin-bottom: 6px;
+  color: #c8a96e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.readiness-header h3 {
+  margin: 0 0 8px;
+  color: #e8e4dc;
+  font-size: 23px;
+  line-height: 1.25;
+}
+
+.readiness-header p {
+  margin: 0;
+  color: #b0ada6;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.readiness-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.readiness-metric {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #2e2c28;
+  border-radius: 8px;
+  background: rgba(15, 14, 12, 0.74);
+}
+
+.readiness-metric span,
+.readiness-metric small {
+  display: block;
+  color: #8f8a80;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.readiness-metric strong {
+  display: block;
+  margin-top: 5px;
+  color: #e8e4dc;
+  font-family: monospace;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.readiness-metric.good strong,
+.readiness-risk-list .good,
+.readiness-milestone .good {
+  color: #4caf85;
+}
+
+.readiness-metric.bad strong,
+.readiness-risk-list .bad,
+.readiness-milestone .bad {
+  color: #d56b6b;
+}
+
+.readiness-risk-list .warn {
+  color: #c8953a;
+}
+
+.readiness-section {
+  padding: 12px;
+  border: 1px solid rgba(46, 44, 40, 0.75);
+  border-radius: 8px;
+  background: rgba(15, 14, 12, 0.5);
+}
+
+.readiness-section h4 {
+  margin: 0 0 10px;
+  color: #e8e4dc;
+  font-size: 15px;
+}
+
+.readiness-milestones,
+.readiness-risk-list {
+  display: grid;
+  gap: 8px;
+}
+
+.readiness-milestone,
+.readiness-risk-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(46, 44, 40, 0.7);
+  color: #b0ada6;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.readiness-milestone:last-child,
+.readiness-risk-list div:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.readiness-milestone strong,
+.readiness-risk-list strong {
+  flex-shrink: 0;
+  color: inherit;
+  font-family: monospace;
+  font-size: 15px;
+  text-align: right;
+}
+
 .chart-axis {
   display: flex;
   justify-content: space-between;

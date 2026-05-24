@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CURRENCIES, fmt, moneyWanToTwd } from "../utils/formatters";
+import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
 import MobileSummary from "./MobileSummary";
 import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
@@ -43,15 +43,20 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
         <NumInput label="退休年齡" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
       </div>
       <div className="money-grid">
-        <NumInput label="現金儲蓄" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500（萬）" />
-        <NumInput label="投資總額" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500（萬）" />
+        <NumInput label="現金儲蓄（萬元）" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+        <NumInput label="投資總額（萬元）" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
       </div>
       {(inp.cash > 0 || inp.investments > 0) && (
         <div className="input-helper">
           合計：{fmt(moneyWanToTwd(inp.cash, currency) + moneyWanToTwd(inp.investments, currency), currency)}
         </div>
       )}
-      <NumInput label="退休生活費（年，現值）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100（萬）" />
+      <NumInput label="退休生活費（年，現值，萬元）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+      {inp.expenses > 0 && (
+        <div className="input-helper">
+          以今日物價計算；試算會依每年 {inp.inf}% 通膨自動推估退休時生活費。
+        </div>
+      )}
 
       <button
         type="button"
@@ -74,7 +79,7 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
 
           <details className="setting-panel">
             <summary>進階假設</summary>
-            <NumInput label="退休前每年投入金額" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200（萬）" />
+            <NumInput label="退休前每年投入金額（萬元）" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
             {inp.annualContrib > 0 && inp.retAge > inp.age && (
               <div className="input-helper">
                 退休前共投入 {inp.retAge - inp.age} 年，合計 {fmt(moneyWanToTwd(inp.annualContrib, currency) * (inp.retAge - inp.age), currency)}（未含複利）
