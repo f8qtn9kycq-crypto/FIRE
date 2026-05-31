@@ -43,6 +43,12 @@ export default function MobileSummary({ inp, res, story }) {
           <strong>{inp.retAge <= inp.age ? "已退休模式" : `${inp.retAge} 歲退休`}</strong>
         </div>
       </div>
+
+      {res.lifeExpectancyRisk?.riskLevel === "warning" && (
+        <div className="phase-summary-warning">
+          長期規劃年齡風險較高，建議到進階設定確認。
+        </div>
+      )}
     </section>
   );
 }
