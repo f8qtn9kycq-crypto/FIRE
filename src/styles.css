@@ -96,8 +96,13 @@ select:focus-visible {
 
 .summary-grid,
 .age-grid,
-.money-grid,
+money-grid,
 .tax-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.money-grid {
   display: grid;
   gap: 10px;
 }
@@ -242,6 +247,16 @@ select:focus-visible {
   line-height: 1.4;
 }
 
+.phase-summary-warning {
+  padding: 10px 12px;
+  border: 1px solid #5c3a1d;
+  border-radius: 8px;
+  background: #24190e;
+  color: #c8953a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .advanced-panel {
   margin-top: 18px;
   border: 1px solid #2e2c28;
@@ -260,6 +275,47 @@ select:focus-visible {
   font-weight: 900;
   cursor: pointer;
   margin-top: 4px;
+}
+
+.primary-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.validation-alert {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #2e2c28;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #171612;
+}
+
+.validation-alert strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #e8e4dc;
+  font-size: 15px;
+}
+
+.validation-alert ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #b0ada6;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.validation-alert.error,
+.validation-alert.warning {
+  border-left-color: #d56b6b;
+  background: #251313;
+}
+
+.validation-alert.caution,
+.validation-alert.info {
+  border-left-color: #c8953a;
+  background: #24190e;
 }
 
 .advanced-panel summary {
