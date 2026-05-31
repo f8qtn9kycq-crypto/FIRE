@@ -19,16 +19,17 @@ import {
 import { fmt } from "./utils/formatters";
 
 function getPlanStory(res) {
-  if (!res) return { status: "先填核心數字", tone: "neutral", success: null };
+  if (!res) return { status: "先填核心數字", tone: "neutral", success: null, achievementRate: null };
 
   const success = res.mcData?.length ? res.mcData[res.mcData.length - 1] : null;
+  const achievementRate = Math.max(0, Math.round((res.assessmentPortfolio / Math.max(res.fireTarget, 1)) * 100));
   if (success >= 85 && res.fireReadyAtRet) {
-    return { status: "相對穩健", tone: "good", success };
+    return { status: "相對穩健", tone: "good", success, achievementRate };
   }
   if (success >= 65 || res.fireReadyAtRet) {
-    return { status: "接近可行", tone: "warn", success };
+    return { status: "接近可行", tone: "warn", success, achievementRate };
   }
-  return { status: "需要調整", tone: "bad", success };
+  return { status: "需要調整", tone: "bad", success, achievementRate };
 }
 
 export default function App() {
@@ -47,6 +48,7 @@ export default function App() {
   const ready = useMemo(() => isReady(inp), [inp]);
   const res = useMemo(() => calculateResults(inp), [inp]);
   const story = useMemo(() => getPlanStory(res), [res]);
+  const retirementLabel = inp.retAge <= inp.age ? "已退休模式" : `${inp.retAge || "未設定"}歲退休`;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -137,10 +139,10 @@ export default function App() {
       <div className="app-content">{panels[tab]}</div>
       <div className={`sticky-summary ${ready && res ? "is-ready" : ""}`}>
         <div>
-          <div className={`sticky-status ${story.tone}`}>{story.status}</div>
+          <div className={`sticky-status ${story.tone}`}>{retirementLabel}</div>
           <div className="sticky-metrics">
-            {story.success === null ? "填完核心數字即可試算" : `${story.success}% 成功率`}
-            {res ? <span>{fmt(res.portAtRet, res.currency)}</span> : null}
+            {story.achievementRate === null ? "填完核心數字即可試算" : `${story.achievementRate}% 達標`}
+            {res ? <span>目前資產：{fmt(res.savedRaw, res.currency)}</span> : null}
           </div>
         </div>
         <button type="button" onClick={showDetails} disabled={!ready || !res}>

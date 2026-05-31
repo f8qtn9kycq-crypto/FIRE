@@ -1,9 +1,16 @@
 import { runMC } from "./monteCarlo";
 import { buildScenarioResults, runBearScenario } from "./scenarios";
 import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters";
+import {
+  DEFAULT_PLAN_END_AGE as VALIDATION_DEFAULT_PLAN_END_AGE,
+  SUPPORT_MAX_AGE as VALIDATION_SUPPORT_MAX_AGE,
+  generateValidationSummary,
+  suggestAutoCorrection,
+  validateAndAssess,
+} from "./validateRetirementAssumptions";
 
-export const DEFAULT_PLAN_END_AGE = 95;
-export const SUPPORT_MAX_AGE = 120;
+export const DEFAULT_PLAN_END_AGE = VALIDATION_DEFAULT_PLAN_END_AGE;
+export const SUPPORT_MAX_AGE = VALIDATION_SUPPORT_MAX_AGE;
 
 export const initialInputs = {
   age: 0,
@@ -54,8 +61,10 @@ export function normalizeInputs(value = {}) {
     merged[field] = Number.isFinite(parsed) ? parsed : initialInputs[field];
   }
 
-  if (merged.lifeExp <= merged.age) {
-    merged.lifeExp = Math.max(DEFAULT_PLAN_END_AGE, merged.age + 1);
+  const autoCorrection = suggestAutoCorrection(merged);
+  if (autoCorrection.hasAutoCorrections) {
+    console.warn("[normalizeInputs] Auto-corrections applied:", autoCorrection.changedFields);
+    Object.assign(merged, autoCorrection.corrected);
   }
 
   if (!hadCurrency) {
@@ -119,6 +128,14 @@ export function isReady(inp) {
   );
 }
 
+export function validateInputsForDisplay(inp) {
+  return validateAndAssess(inp);
+}
+
+export function getValidationAlert(inp) {
+  return generateValidationSummary(validateInputsForDisplay(inp));
+}
+
 function supportAgeFromSeries(series, retAge, maxAge) {
   const depletedIndex = series.findIndex((value, index) => index > 0 && value <= 0);
   if (depletedIndex === -1) {
@@ -158,6 +175,10 @@ export function getRiskScores({ inp, res }) {
 export function calculateResults(inp) {
   if (!isReady(inp)) return null;
 
+  const validation = validateInputsForDisplay(inp);
+  if (validation.hasErrors) return null;
+
+  const validationAlert = generateValidationSummary(validation);
   const { age, retAge, retPre, retPost, swr, inf } = inp;
   const lifeExp = Math.max(inp.lifeExp || DEFAULT_PLAN_END_AGE, retAge + 1);
   const currency = CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
@@ -242,6 +263,8 @@ export function calculateResults(inp) {
     currentAlreadyFIRE,
     fireReadyAtRet,
     alreadyFIRE: fireReadyAtRet,
+    validationAlert,
+    lifeExpectancyRisk: validation.lifeExpectancyRisks,
     scenarioResults: buildScenarioResults({
       portAtRet,
       retPost,

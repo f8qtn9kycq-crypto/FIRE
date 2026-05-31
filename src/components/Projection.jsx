@@ -1,4 +1,5 @@
 import { fmt } from "../utils/formatters";
+import RetirementReadinessBreakdown from "./RetirementReadinessBreakdown";
 import { Divider, Empty, MiniChart, SecLabel } from "./SummaryCards";
 
 export default function Projection({ inp, ready, res, emptyText }) {
@@ -11,6 +12,8 @@ export default function Projection({ inp, ready, res, emptyText }) {
 
   return (
     <div>
+      <RetirementReadinessBreakdown inp={inp} res={res} />
+
       <SecLabel>投資組合成長預測</SecLabel>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 14 }}>
         <MiniChart data={baseData} color="#C8A96E" height={300} startAge={inp.retAge} currency={currency} />

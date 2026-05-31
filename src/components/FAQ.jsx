@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 export const FIRE_BEGINNER_FAQ_ZH_TW = [
   {
@@ -99,10 +99,10 @@ export const FIRE_BEGINNER_FAQ_ZH_TW = [
   },
 ];
 
-function FAQItem({ item, open, onToggle }) {
+function FAQItem({ item, open, onToggle, refCallback }) {
   return (
-    <div className={`faq-item ${open ? "is-open" : ""}`}>
-      <button type="button" className="faq-question" onClick={onToggle}>
+    <div ref={refCallback} className={`faq-item ${open ? "is-open" : ""}`}>
+      <button type="button" className="faq-question" aria-expanded={open} onClick={onToggle}>
         <span>{item.question}</span>
         <span className="faq-toggle">{open ? "−" : "+"}</span>
       </button>
@@ -113,10 +113,34 @@ function FAQItem({ item, open, onToggle }) {
 
 export default function FAQ({ onBack }) {
   const [openId, setOpenId] = useState(FIRE_BEGINNER_FAQ_ZH_TW[0].id);
-  const openItem = useMemo(
+  const itemRefs = useRef({});
+  const selectedItem = useMemo(
     () => FIRE_BEGINNER_FAQ_ZH_TW.find((item) => item.id === openId),
     [openId],
   );
+
+  const scrollToItem = (itemId) => {
+    requestAnimationFrame(() => {
+      itemRefs.current[itemId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  };
+
+  const openFaqItem = (itemId) => {
+    setOpenId(itemId);
+    scrollToItem(itemId);
+  };
+
+  const toggleItem = (itemId) => {
+    const nextId = openId === itemId ? null : itemId;
+    setOpenId(nextId);
+
+    if (nextId) {
+      scrollToItem(nextId);
+    }
+  };
 
   return (
     <div className="guide-shell">
@@ -139,7 +163,7 @@ export default function FAQ({ onBack }) {
               key={item.id}
               type="button"
               className={`faq-jump-button ${openId === item.id ? "is-active" : ""}`}
-              onClick={() => setOpenId(item.id)}
+              onClick={() => openFaqItem(item.id)}
             >
               {index + 1}. {item.question}
             </button>
@@ -147,11 +171,11 @@ export default function FAQ({ onBack }) {
         </div>
 
         <div className="faq-list">
-          {openItem && (
+          {selectedItem && (
             <div className="faq-feature">
               <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 8 }}>目前閱讀</div>
-              <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.45, marginBottom: 10 }}>{openItem.question}</div>
-              <div style={{ fontSize: 16, color: "#B0ADA6", lineHeight: 1.8 }}>{openItem.answer}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.45, marginBottom: 10 }}>{selectedItem.question}</div>
+              <div style={{ fontSize: 16, color: "#B0ADA6", lineHeight: 1.8 }}>{selectedItem.answer}</div>
             </div>
           )}
 
@@ -160,7 +184,10 @@ export default function FAQ({ onBack }) {
               key={item.id}
               item={item}
               open={openId === item.id}
-              onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+              onToggle={() => toggleItem(item.id)}
+              refCallback={(el) => {
+                itemRefs.current[item.id] = el;
+              }}
             />
           ))}
         </div>

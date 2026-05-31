@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { CURRENCIES, fmt, moneyWanToTwd } from "../utils/formatters";
-import { Card, Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
+import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
+import { DEFAULT_PLAN_END_AGE, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
+import MobileSummary from "./MobileSummary";
+import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
 const PRESETS = {
   retPre: [
@@ -29,132 +31,113 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const currency = res?.currency || CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
   const moneyPrefix = currency.symbol || currency.code;
-  const isFutureAssessment = Boolean(res && res.yToRet > 0);
-  const assessmentLabel = isFutureAssessment ? "退休時預估投資組合" : "目前投資組合";
   const needsExpense = inp.expenses <= 0;
+  const validation = validateInputsForDisplay(inp);
+  const validationAlert = getValidationAlert(inp);
+  const hasTouchedPlanningAge = inp.age > 0 || inp.retAge > 0 || inp.lifeExp !== DEFAULT_PLAN_END_AGE;
+  const shouldShowValidation = hasTouchedPlanningAge && validationAlert.alertType !== "success";
+  const hasBlockingValidation = hasTouchedPlanningAge && validation.hasErrors;
 
   return (
     <div>
-      {ready && res && (
-        <div className={`story-card ${story?.tone || "neutral"}`}>
-          <div style={{ fontSize: 13, color: "#8F8A80", marginBottom: 6 }}>你的退休計畫屬於</div>
-          <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>{story?.status}</div>
-          <div style={{ fontSize: 16, color: "#B0ADA6", lineHeight: 1.7 }}>
-            {story?.tone === "good"
-              ? `大部分模擬情境下，資產可支撐至 ${inp.lifeExp} 歲以上。`
-              : story?.tone === "warn"
-                ? "計畫已接近可行，調整支出、投入或退休年齡會讓結果更穩。"
-                : "目前結果偏緊，建議先調整退休生活費、每年投入或退休年齡。"}
-          </div>
-        </div>
-      )}
+      <MobileSummary inp={inp} res={res} story={story} />
 
-      {ready && res && (
-        <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "14px 14px", marginBottom: 16 }}>
-          <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>分析結果摘要</div>
-          <div className="summary-grid" style={{ marginBottom: 0 }}>
-            <Card label="基準情境" value={res.baseSupport.label} sub={res.baseSupport.depleted ? "資產耗盡年齡" : "仍有資產"} color={res.baseSupport.depleted ? "warn" : "good"} />
-            <Card label="30% 熊市衝擊" value={res.bearSupport.label} sub="第1年遭遇市場崩跌" color={res.bearSupport.depleted ? "warn" : "good"} />
-          </div>
-          <div style={{ fontSize: 15, color: "#9B9890", lineHeight: 1.6, marginTop: 12 }}>
-            基準情境可支撐至 <strong style={{ color: "#E8E4DC" }}>{res.baseSupport.label}</strong>；即使第1年遭遇30%市場崩跌，投資組合可支撐至 <strong style={{ color: "#E8E4DC" }}>{res.bearSupport.label}</strong>。
-          </div>
-        </div>
-      )}
-
-      {ready && res && (
-        <div
-          style={{
-            background: res.fireReadyAtRet ? "#0D2B1E" : "#2B1A0D",
-            border: `1px solid ${res.fireReadyAtRet ? "#1D5C3A" : "#5C3A1D"}`,
-            borderRadius: 8,
-            padding: "14px 16px",
-            marginBottom: 20,
-            fontSize: 16,
-            color: res.fireReadyAtRet ? "#4CAF85" : "#C8953A",
-            lineHeight: 1.6,
-          }}
-        >
-          {res.fireReadyAtRet
-            ? `${isFutureAssessment ? "依退休前投入與複利估算，退休時可達財務自由" : "您已達到財務自由"}！${assessmentLabel} ${fmt(res.assessmentPortfolio, currency)}，是目標 ${fmt(res.fireTarget, currency)} 的 ${(res.assessmentPortfolio / res.fireTarget).toFixed(1)} 倍。`
-            : `${assessmentLabel}距離財務自由目標 ${fmt(res.fireTarget, currency)} 還差 ${fmt(Math.abs(res.assessmentGap), currency)}。`}
-        </div>
-      )}
-
-      {ready && res && (
-        <div className="summary-grid">
-          <Card label="財務自由目標" value={fmt(res.fireTarget, currency)} sub={`${inp.swr}% 提領率`} />
-          <Card
-            label={res.fireReadyAtRet ? "退休時超額資產" : "退休時資金缺口"}
-            value={(res.fireReadyAtRet ? "+" : "-") + fmt(Math.abs(res.assessmentGap), currency)}
-            sub={isFutureAssessment ? `${inp.retAge}歲評估` : "今日評估"}
-            color={res.fireReadyAtRet ? "good" : "bad"}
-          />
-          <Card label="總提領金額" value={fmt(res.grossW, currency) + "/年"} sub="稅前" />
-          <Card label="淨提領金額" value={fmt(res.netW, currency) + "/年"} sub={`扣除 ${inp.cgTax}% 稅後`} color="warn" />
+      {shouldShowValidation && (
+        <div className={`validation-alert ${validationAlert.alertType}`}>
+          <strong>{validationAlert.statusText}</strong>
+          <ul>
+            {validationAlert.details.map((detail) => (
+              <li key={detail}>{detail}</li>
+            ))}
+          </ul>
         </div>
       )}
 
       <Divider />
       <SecLabel>核心試算</SecLabel>
-      <div className="age-grid" style={{ gap: 12 }}>
-        <NumInput label="目前年齡" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
-        <NumInput label="退休年齡" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
+      <div className="age-grid">
+        <NumInput label="目前年齡（歲）" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
+        <NumInput label="退休年齡（歲）" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
       </div>
-      <div className="money-grid" style={{ gap: 12 }}>
-        <NumInput label="現金儲蓄" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500（萬）" />
-        <NumInput label="投資總額" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500（萬）" />
+      <div className="money-grid">
+        <NumInput label="現金儲蓄（萬元）" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+        <NumInput label="投資總額（萬元）" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
       </div>
       {(inp.cash > 0 || inp.investments > 0) && (
-        <div style={{ fontSize: 14, color: "#5C5A55", marginBottom: 12, marginTop: -8, paddingLeft: 2, lineHeight: 1.5 }}>
+        <div className="input-helper">
           合計：{fmt(moneyWanToTwd(inp.cash, currency) + moneyWanToTwd(inp.investments, currency), currency)}
         </div>
       )}
-      <NumInput label="退休前每年投入金額" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200（萬）" />
-      {inp.annualContrib > 0 && inp.retAge > inp.age && (
-        <div style={{ fontSize: 14, color: "#5C5A55", marginBottom: 12, marginTop: -8, paddingLeft: 2, lineHeight: 1.5 }}>
-          退休前共投入 {inp.retAge - inp.age} 年，合計 {fmt(moneyWanToTwd(inp.annualContrib, currency) * (inp.retAge - inp.age), currency)}（未含複利）
+      <NumInput label="退休生活費（年，現值，萬元）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+      {inp.expenses > 0 && (
+        <div className="input-helper">
+          以今日物價計算；試算會依每年 {inp.inf}% 通膨自動推估退休時生活費。
         </div>
       )}
 
       <button
         type="button"
         className="primary-cta"
+        disabled={hasBlockingValidation}
         onClick={() => {
           if (!ready) setAdvancedOpen(true);
         }}
       >
-        {ready ? "已完成試算" : needsExpense ? "開始試算：填退休生活費" : "開始試算"}
+        {hasBlockingValidation ? "請先修正年齡設定" : ready ? "已完成試算" : needsExpense ? "開始試算：填退休生活費" : "開始試算"}
       </button>
 
       <details className="advanced-panel" open={advancedOpen} onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}>
         <summary>進階設定</summary>
         <div className="advanced-body">
-          <NumInput label="退休生活費（年，現值）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100（萬）" />
+          <details className="setting-panel">
+            <summary>通膨與提領</summary>
+            <Slider label="安全提領率" value={inp.swr} min={2} max={6} step={0.25} presets={PRESETS.swr} onChange={(v) => setInput("swr", v)} />
+            <Slider label="通貨膨脹率" value={inp.inf} min={0} max={8} step={0.25} presets={PRESETS.inf} onChange={(v) => setInput("inf", v)} />
+          </details>
 
-          <SecLabel>報酬率假設</SecLabel>
-          <Slider label="退休前年報酬率" value={inp.retPre} min={2} max={15} step={0.5} presets={PRESETS.retPre} onChange={(v) => setInput("retPre", v)} />
-          <Slider label="退休後年報酬率" value={inp.retPost} min={1} max={12} step={0.5} presets={PRESETS.retPost} onChange={(v) => setInput("retPost", v)} />
-          <Slider label="安全提領率" value={inp.swr} min={2} max={6} step={0.25} presets={PRESETS.swr} onChange={(v) => setInput("swr", v)} />
-          <Slider label="通貨膨脹率" value={inp.inf} min={0} max={8} step={0.25} presets={PRESETS.inf} onChange={(v) => setInput("inf", v)} />
+          <details className="setting-panel">
+            <summary>進階假設</summary>
+            <NumInput label="長期規劃到幾歲" value={inp.lifeExp} onChange={(v) => setInput("lifeExp", v)} placeholder="例：95" />
+            <div className="input-helper">
+              {inp.retAge > 0 && inp.lifeExp > inp.retAge
+                ? `退休後規劃約 ${inp.lifeExp - inp.retAge} 年；若想保守，可測試 95-100 歲。`
+                : "預設以 95 歲作為長期規劃年齡。"}
+            </div>
+            <NumInput label="退休前每年投入金額（萬元）" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+            {inp.annualContrib > 0 && inp.retAge > inp.age && (
+              <div className="input-helper">
+                退休前共投入 {inp.retAge - inp.age} 年，合計 {fmt(moneyWanToTwd(inp.annualContrib, currency) * (inp.retAge - inp.age), currency)}（未含複利）
+              </div>
+            )}
+            <Slider label="退休前年報酬率" value={inp.retPre} min={2} max={15} step={0.5} presets={PRESETS.retPre} onChange={(v) => setInput("retPre", v)} />
+            <Slider label="退休後年報酬率" value={inp.retPost} min={1} max={12} step={0.5} presets={PRESETS.retPost} onChange={(v) => setInput("retPost", v)} />
+          </details>
 
-          <Divider />
-          <SecLabel>稅率與幣別</SecLabel>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 7 }}>輸入 / 顯示幣別</div>
-            <select
-              value={inp.currencyCode}
-              onChange={(e) => setInput("currencyCode", e.target.value)}
-              className="large-select"
-            >
-              {Object.keys(CURRENCIES).map((code) => (
-                <option key={code} value={code}>
-                  {code}
-                </option>
-              ))}
-            </select>
-          </div>
-          <NumInput label="資本利得稅率 %" value={inp.cgTax} onChange={(v) => setInput("cgTax", v)} placeholder="例：20" />
+          <details className="setting-panel">
+            <summary>稅務設定</summary>
+            <div className="field-block">
+              <label>輸入 / 顯示幣別</label>
+              <select
+                value={inp.currencyCode}
+                onChange={(e) => setInput("currencyCode", e.target.value)}
+                className="large-select"
+              >
+                {Object.keys(CURRENCIES).map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <NumInput label="資本利得稅率 %" value={inp.cgTax} onChange={(v) => setInput("cgTax", v)} placeholder="例：20" />
+          </details>
+
+          <details className="setting-panel">
+            <summary>Monte Carlo 與壓力測試</summary>
+            <div className="setting-note">
+              目前模擬與熊市壓力測試會自動依你的核心數字更新，詳細結果放在「風險」與「預測」頁。
+            </div>
+          </details>
         </div>
       </details>
     </div>

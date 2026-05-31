@@ -179,24 +179,55 @@ export function Slider({ label, value, min, max, step, onChange, presets = [] })
   );
 }
 
-export function NumInput({ label, isWan = false, value, onChange, placeholder = "0", prefix = "NT$" }) {
+export function NumInput({
+  label,
+  isWan = false,
+  value,
+  onChange,
+  placeholder = "0",
+  prefix = "NT$",
+  formatValue = null,
+  parseValue = null,
+}) {
+  const [displayValue, setDisplayValue] = useState(() => (formatValue ? formatValue(value) : value === 0 ? "" : String(value)));
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (isFocused) return;
+    setDisplayValue(formatValue ? formatValue(value) : value === 0 ? "" : String(value));
+  }, [formatValue, isFocused, value]);
+
+  const commitValue = (rawValue) => {
+    const parsed = parseValue ? parseValue(rawValue) : parseFloat(rawValue);
+    onChange(Number.isFinite(parsed) ? parsed : 0);
+  };
+
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 7 }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "center", background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 10, overflow: "hidden", minHeight: 54 }}>
+    <div className="num-input-block">
+      <label className="num-input-label">{label}</label>
+      <div className="num-input-wrapper">
         {isWan && (
-          <span style={{ padding: "0 10px", fontSize: 15, color: "#C8A96E", fontWeight: 700, borderRight: "1px solid #2E2C28", minWidth: 54, textAlign: "center" }}>
+          <span className="num-input-prefix">
             {prefix}
           </span>
         )}
         <input
-          type="number"
+          type={parseValue ? "text" : "number"}
+          inputMode="decimal"
           placeholder={placeholder}
-          value={value === 0 ? "" : value}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-          style={{ flex: 1, padding: "15px 12px", fontSize: 19, background: "transparent", border: "none", outline: "none", color: "#E8E4DC", fontFamily: "monospace", minWidth: 0 }}
+          value={displayValue}
+          onChange={(e) => {
+            setDisplayValue(e.target.value);
+            commitValue(e.target.value);
+          }}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            setIsFocused(false);
+            if (formatValue) setDisplayValue(formatValue(parseValue ? parseValue(displayValue) : value));
+          }}
+          className="num-input-control"
         />
-        {isWan && <span style={{ padding: "0 12px", fontSize: 15, color: "#5C5A55", fontWeight: 600 }}>萬</span>}
+        {isWan && <span className="num-input-suffix">萬</span>}
       </div>
     </div>
   );
