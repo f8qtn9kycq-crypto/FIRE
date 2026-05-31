@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
+import { DEFAULT_PLAN_END_AGE, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
 import MobileSummary from "./MobileSummary";
 import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
@@ -31,16 +32,32 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
   const currency = res?.currency || CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
   const moneyPrefix = currency.symbol || currency.code;
   const needsExpense = inp.expenses <= 0;
+  const validation = validateInputsForDisplay(inp);
+  const validationAlert = getValidationAlert(inp);
+  const hasTouchedPlanningAge = inp.age > 0 || inp.retAge > 0 || inp.lifeExp !== DEFAULT_PLAN_END_AGE;
+  const shouldShowValidation = hasTouchedPlanningAge && validationAlert.alertType !== "success";
+  const hasBlockingValidation = hasTouchedPlanningAge && validation.hasErrors;
 
   return (
     <div>
       <MobileSummary inp={inp} res={res} story={story} />
 
+      {shouldShowValidation && (
+        <div className={`validation-alert ${validationAlert.alertType}`}>
+          <strong>{validationAlert.statusText}</strong>
+          <ul>
+            {validationAlert.details.map((detail) => (
+              <li key={detail}>{detail}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <Divider />
       <SecLabel>核心試算</SecLabel>
       <div className="age-grid">
-        <NumInput label="目前年齡" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
-        <NumInput label="退休年齡" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
+        <NumInput label="目前年齡（歲）" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
+        <NumInput label="退休年齡（歲）" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
       </div>
       <div className="money-grid">
         <NumInput label="現金儲蓄（萬元）" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
@@ -61,11 +78,12 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
       <button
         type="button"
         className="primary-cta"
+        disabled={hasBlockingValidation}
         onClick={() => {
           if (!ready) setAdvancedOpen(true);
         }}
       >
-        {ready ? "已完成試算" : needsExpense ? "開始試算：填退休生活費" : "開始試算"}
+        {hasBlockingValidation ? "請先修正年齡設定" : ready ? "已完成試算" : needsExpense ? "開始試算：填退休生活費" : "開始試算"}
       </button>
 
       <details className="advanced-panel" open={advancedOpen} onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}>
@@ -79,6 +97,12 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
 
           <details className="setting-panel">
             <summary>進階假設</summary>
+            <NumInput label="長期規劃到幾歲" value={inp.lifeExp} onChange={(v) => setInput("lifeExp", v)} placeholder="例：95" />
+            <div className="input-helper">
+              {inp.retAge > 0 && inp.lifeExp > inp.retAge
+                ? `退休後規劃約 ${inp.lifeExp - inp.retAge} 年；若想保守，可測試 95-100 歲。`
+                : "預設以 95 歲作為長期規劃年齡。"}
+            </div>
             <NumInput label="退休前每年投入金額（萬元）" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
             {inp.annualContrib > 0 && inp.retAge > inp.age && (
               <div className="input-helper">
