@@ -1,0 +1,205 @@
+# Repo-owned automation contract for f8qtn9kycq-crypto/FIRE.
+# Scheduled runners must read this file before choosing work or mutating GitHub.
+version: 1
+
+repository:
+  full_name: f8qtn9kycq-crypto/FIRE
+  default_branch: main
+  product: FIRE
+  expected_remotes:
+    - https://github.com/f8qtn9kycq-crypto/FIRE.git
+    - git@github.com:f8qtn9kycq-crypto/FIRE.git
+
+product_boundary:
+  description: Personal FIRE / financial planning repository.
+  current_repo_docs_are_minimal: true
+  safety_positioning:
+    - personal planning and scenario modeling only
+    - not financial, investment, tax, legal, or retirement advice
+    - no trading automation by default
+    - no broker, exchange, or custodial account actions
+    - no guarantee of returns, FI status, safe withdrawal rate, or tax outcome
+
+source_of_truth:
+  required_before_work:
+    - AGENTS.md
+    - .github/pull_request_template.md
+    - .github/ai-automation.yml
+    - README.md
+  supporting_docs: []
+
+preflight:
+  required_before_github_mutation:
+    - local_git_remote_matches_repository_full_name
+    - github_repo_query_matches_repository_full_name
+    - repo_tracked_instructions_match_product
+    - default_branch_is_synced_before_branch_creation
+  mismatch_behavior: repo-mismatch blocker
+  missing_contract_behavior: stop_without_mutation
+  stale_or_ambiguous_context_behavior: prefer_repo_tracked_files
+
+execution:
+  max_units_per_run: 1
+  allowed_chain:
+    - issue implementation
+    - pull request creation or update
+    - ChatGPT pull request review when required
+    - verdict retrieval
+    - gate-based action on verdict
+  disallowed_by_default:
+    - bulk-triggering Codex
+    - direct commits to main
+    - automatic merge
+    - trading or broker actions
+    - external account writes
+    - investment recommendations presented as personalized financial advice
+    - tax or legal conclusions presented as advice
+    - hard-coded personal financial assumptions without explicit source/evidence
+
+selection:
+  issue_order:
+    priority: [P0, P1, P2]
+    status: [Ready for Codex, Backlog]
+    risk_tier: [Tier 0, Tier 1, Tier 2, Tier 3]
+    tie_breaker: oldest_first
+  pr_order:
+    priority: [P0, P1, P2]
+    status: [PR Review, Review, Ready to Merge]
+    risk_tier: [Tier 0, Tier 1, Tier 2, Tier 3]
+    tie_breaker: oldest_first
+  readiness_required_fields:
+    - goal_or_user_problem
+    - scope
+    - priority
+    - risk_tier
+    - ai_owner_codex_or_equivalent
+    - financial_safety_constraints
+    - acceptance_criteria
+    - qa_or_validation_requirements
+    - codex_trigger_or_implementation_contract
+
+validation:
+  default:
+    - inspect changed files and confirm whether repo has a build/test command
+    - if no build/test command exists, document docs-only or manual validation evidence
+  docs_only:
+    - confirm no runtime or calculation behavior changed
+    - confirm no personal finance assumptions changed
+    - confirm no investment, tax, legal, or retirement advice claims were introduced
+  if_finance_calculation_or_model_change:
+    - verify formulas with deterministic sample scenarios
+    - verify currency, inflation, withdrawal, contribution, return, and tax assumptions are explicit
+    - verify edge cases for zero, negative, missing, and unusually large values
+    - verify no guarantee language is introduced
+    - require human review before merge
+  if_data_or_privacy_change:
+    - verify personal financial data handling
+    - verify no secrets or account credentials are introduced
+    - verify export/import behavior if applicable
+    - require human review before merge
+
+risk_tiers:
+  Tier 0:
+    description: docs, templates, workflow instructions, or metadata with no finance logic or data behavior change
+    review_routing:
+      codex_review: optional
+      claude_review: not_required_unless_findings_conflict
+      chatgpt_pm_synthesis: recommended_before_merge
+    auto_merge_eligible: false
+  Tier 1:
+    description: copy, UI polish, labels, or non-calculation presentation changes
+    review_routing:
+      codex_review: recommended
+      claude_review: not_required_unless_calculation_or_data_risk_appears
+      chatgpt_pm_synthesis: required_before_merge
+    auto_merge_eligible: false
+  Tier 2:
+    description: data import/export, state handling, charts, scenario controls, or non-core calculation plumbing
+    review_routing:
+      codex_review: required
+      claude_review: recommended
+      chatgpt_pm_synthesis: required_before_merge
+    auto_merge_eligible: false
+  Tier 3:
+    description: FIRE calculations, withdrawal assumptions, tax/inflation/currency logic, portfolio allocation, privacy/security, or personal-finance data handling
+    review_routing:
+      codex_review: required
+      claude_review: required
+      chatgpt_pm_synthesis: required_before_merge
+      human_review: required
+    auto_merge_eligible: false
+
+auto_merge:
+  allowed: false
+  reason: FIRE and finance-related logic require explicit human review and merge approval.
+
+control_plane:
+  labels:
+    ready_for_implementation:
+      - codex-ready
+    review_required:
+      - review-required
+      - chatgpt-review-required
+      - claude-review-required
+      - human-review-required
+    automation:
+      - blocked
+      - repo-mismatch
+    priority:
+      - priority:P0
+      - priority:P1
+      - priority:P2
+    risk:
+      - risk:tier-0
+      - risk:tier-1
+      - risk:tier-2
+      - risk:tier-3
+  project_fields:
+    status:
+      backlog: Backlog
+      ready_for_codex: Ready for Codex
+      in_progress: In Progress
+      review: Review
+      ready_to_merge: Ready to Merge
+      done: Done
+    priority:
+      - P0
+      - P1
+      - P2
+    risk_tier:
+      - Tier 0
+      - Tier 1
+      - Tier 2
+      - Tier 3
+
+boundaries:
+  do_not_touch_without_explicit_scope:
+    - core FIRE calculations
+    - safe withdrawal rate assumptions
+    - portfolio allocation assumptions
+    - tax assumptions
+    - currency conversion logic
+    - inflation or return assumptions
+    - personal financial data schema
+    - data import/export behavior
+    - privacy/security behavior
+    - external account integrations
+  stop_conditions:
+    - repo-mismatch blocker
+    - missing required workflow contract
+    - unclear selected issue scope
+    - validation failure
+    - formula ambiguity
+    - stale or unsupported financial assumptions
+    - personal-data privacy ambiguity
+    - any attempted trading, broker, or external account write action
+
+reporting:
+  required_output:
+    - verdict
+    - selected unit of work
+    - files changed or inspected
+    - validation evidence
+    - review verdicts retrieved
+    - merge or stop reason
+    - next recommended action
