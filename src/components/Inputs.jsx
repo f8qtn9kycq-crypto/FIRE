@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
-import { DEFAULT_PLAN_END_AGE, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
+import { DEFAULT_PLAN_END_AGE, getInputCompletion, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
 import MobileSummary from "./MobileSummary";
 import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
@@ -29,14 +29,31 @@ const PRESETS = {
 
 export default function Inputs({ inp, setInput, ready, res, story }) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const inputRefs = useRef({});
   const currency = res?.currency || CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
   const moneyPrefix = currency.symbol || currency.code;
-  const needsExpense = inp.expenses <= 0;
+  const completion = getInputCompletion(inp);
+  const completionByKey = Object.fromEntries(completion.fields.map((field) => [field.key, field]));
+  const ageMissing = !completionByKey.age.isComplete;
+  const retAgeMissing = !completionByKey.retAge.isComplete;
+  const assetsMissing = !completionByKey.assets.isComplete;
+  const expensesMissing = !completionByKey.expenses.isComplete;
   const validation = validateInputsForDisplay(inp);
   const validationAlert = getValidationAlert(inp);
   const hasTouchedPlanningAge = inp.age > 0 || inp.retAge > 0 || inp.lifeExp !== DEFAULT_PLAN_END_AGE;
   const shouldShowValidation = hasTouchedPlanningAge && validationAlert.alertType !== "success";
   const hasBlockingValidation = hasTouchedPlanningAge && validation.hasErrors;
+  const setInputRef = (key) => (node) => {
+    inputRefs.current[key] = node;
+  };
+  const focusFirstMissing = () => {
+    const target = completion.firstMissing;
+    const input = target && inputRefs.current[target.focusKey];
+    if (!input) return;
+
+    input.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.requestAnimationFrame(() => input.focus());
+  };
 
   return (
     <div>
@@ -55,35 +72,77 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
 
       <Divider />
       <SecLabel>核心試算</SecLabel>
+      <section className="completion-card" aria-live="polite">
+        <div className="completion-header">
+          <strong>核心資料 {completion.completedCount}/{completion.totalCount} 完成</strong>
+          <span>{completion.allComplete ? "可以開始試算" : "還有資料需要補上"}</span>
+        </div>
+        <progress
+          className="completion-progress"
+          value={completion.completedCount}
+          max={completion.totalCount}
+          aria-label={`核心資料完成 ${completion.completedCount} 項，共 ${completion.totalCount} 項`}
+        />
+        <div className="completion-list">
+          {completion.fields.map((field) => (
+            <span key={field.key} className={`completion-item ${field.isComplete ? "is-complete" : "is-missing"}`}>
+              {field.isComplete ? "完成" : "待填"}：{field.label}
+            </span>
+          ))}
+        </div>
+      </section>
       <div className="age-grid">
-        <NumInput label="目前年齡（歲）" value={inp.age} onChange={(v) => setInput("age", v)} placeholder="例：45" />
-        <NumInput label="退休年齡（歲）" value={inp.retAge} onChange={(v) => setInput("retAge", v)} placeholder="例：55" />
+        <NumInput
+          id="age"
+          inputRef={setInputRef("age")}
+          label="目前年齡（歲）"
+          value={inp.age}
+          onChange={(v) => setInput("age", v)}
+          placeholder="例：45"
+          isMissing={ageMissing}
+          errorText={ageMissing ? "請填寫目前年齡" : ""}
+        />
+        <NumInput
+          id="retirement-age"
+          inputRef={setInputRef("retAge")}
+          label="退休年齡（歲）"
+          value={inp.retAge}
+          onChange={(v) => setInput("retAge", v)}
+          placeholder="例：55"
+          isMissing={retAgeMissing}
+          errorText={retAgeMissing ? "請填寫退休年齡" : ""}
+        />
       </div>
       <div className="money-grid">
-        <NumInput label="現金儲蓄（萬元）" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
-        <NumInput label="投資總額（萬元）" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+        <NumInput id="cash" inputRef={setInputRef("cash")} label="現金儲蓄（萬元）" isWan prefix={moneyPrefix} value={inp.cash} onChange={(v) => setInput("cash", v)} placeholder="例：500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} isMissing={assetsMissing} />
+        <NumInput id="investments" label="投資總額（萬元）" isWan prefix={moneyPrefix} value={inp.investments} onChange={(v) => setInput("investments", v)} placeholder="例：2500" formatValue={formatMoneyInput} parseValue={parseMoneyInput} isMissing={assetsMissing} />
       </div>
+      {assetsMissing && (
+        <div className="input-error input-group-error">請至少填寫現金儲蓄或投資總額其中一項</div>
+      )}
       {(inp.cash > 0 || inp.investments > 0) && (
         <div className="input-helper">
           合計：{fmt(moneyWanToTwd(inp.cash, currency) + moneyWanToTwd(inp.investments, currency), currency)}
         </div>
       )}
-      <NumInput label="退休生活費（年，現值，萬元）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+      <NumInput id="expenses" inputRef={setInputRef("expenses")} label="退休生活費（年，現值，萬元）" isWan prefix={moneyPrefix} value={inp.expenses} onChange={(v) => setInput("expenses", v)} placeholder="例：100" formatValue={formatMoneyInput} parseValue={parseMoneyInput} isMissing={expensesMissing} errorText={expensesMissing ? "請填寫退休後每年生活費" : ""} />
       {inp.expenses > 0 && (
         <div className="input-helper">
           以今日物價計算；試算會依每年 {inp.inf}% 通膨自動推估退休時生活費。
         </div>
       )}
+      <NumInput id="annual-contribution" label="退休前每年投入金額（萬元）" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="可填 0" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
+      <div className="input-helper">可先填 0；有定期投入時，試算會加入退休前資產。</div>
 
       <button
         type="button"
         className="primary-cta"
         disabled={hasBlockingValidation}
         onClick={() => {
-          if (!ready) setAdvancedOpen(true);
+          if (!ready) focusFirstMissing();
         }}
       >
-        {hasBlockingValidation ? "請先修正年齡設定" : ready ? "已完成試算" : needsExpense ? "開始試算：填退休生活費" : "開始試算"}
+        {hasBlockingValidation ? "請先修正年齡設定" : ready ? "已完成試算" : completion.firstMissing ? `還需要：${completion.firstMissing.label}` : "完成核心資料後試算"}
       </button>
 
       <details className="advanced-panel" open={advancedOpen} onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}>
@@ -103,12 +162,6 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
                 ? `退休後規劃約 ${inp.lifeExp - inp.retAge} 年；若想保守，可測試 95-100 歲。`
                 : "預設以 95 歲作為長期規劃年齡。"}
             </div>
-            <NumInput label="退休前每年投入金額（萬元）" isWan prefix={moneyPrefix} value={inp.annualContrib} onChange={(v) => setInput("annualContrib", v)} placeholder="例：200" formatValue={formatMoneyInput} parseValue={parseMoneyInput} />
-            {inp.annualContrib > 0 && inp.retAge > inp.age && (
-              <div className="input-helper">
-                退休前共投入 {inp.retAge - inp.age} 年，合計 {fmt(moneyWanToTwd(inp.annualContrib, currency) * (inp.retAge - inp.age), currency)}（未含複利）
-              </div>
-            )}
             <Slider label="退休前年報酬率" value={inp.retPre} min={2} max={15} step={0.5} presets={PRESETS.retPre} onChange={(v) => setInput("retPre", v)} />
             <Slider label="退休後年報酬率" value={inp.retPost} min={1} max={12} step={0.5} presets={PRESETS.retPost} onChange={(v) => setInput("retPost", v)} />
           </details>

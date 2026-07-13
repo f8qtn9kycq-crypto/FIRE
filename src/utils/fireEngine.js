@@ -128,6 +128,34 @@ export function isReady(inp) {
   );
 }
 
+const REQUIRED_INPUT_FIELDS = [
+  { key: "age", focusKey: "age", label: "目前年齡", isComplete: (inp) => inp.age > 0 },
+  { key: "retAge", focusKey: "retAge", label: "退休年齡", isComplete: (inp) => inp.retAge > 0 },
+  {
+    key: "assets",
+    focusKey: "cash",
+    label: "現金或投資總額",
+    isComplete: (inp) => inp.cash > 0 || inp.investments > 0,
+  },
+  { key: "expenses", focusKey: "expenses", label: "退休生活費", isComplete: (inp) => inp.expenses > 0 },
+];
+
+export function getInputCompletion(inp) {
+  const fields = REQUIRED_INPUT_FIELDS.map(({ isComplete, ...field }) => ({
+    ...field,
+    isComplete: isComplete(inp),
+  }));
+  const completedCount = fields.filter((field) => field.isComplete).length;
+
+  return {
+    fields,
+    completedCount,
+    totalCount: fields.length,
+    allComplete: completedCount === fields.length,
+    firstMissing: fields.find((field) => !field.isComplete) || null,
+  };
+}
+
 export function validateInputsForDisplay(inp) {
   return validateAndAssess(inp);
 }
