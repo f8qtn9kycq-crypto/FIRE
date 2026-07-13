@@ -78,6 +78,7 @@ export function parseInputsFromSearch(search) {
   if (!search) return null;
 
   const params = new URLSearchParams(search);
+  if (params.get("blank") === "1") return normalizeInputs(initialInputs);
   const next = {};
   let found = false;
 

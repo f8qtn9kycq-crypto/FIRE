@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 export function useLocalStorage(key, initialValue, options = {}) {
   const { overrideValue, normalize = (value) => value } = options;
+  const [skipPersistence, setSkipPersistence] = useState(false);
 
   const [value, setValue] = useState(() => {
     if (overrideValue) return normalize(overrideValue);
@@ -17,13 +18,27 @@ export function useLocalStorage(key, initialValue, options = {}) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (skipPersistence) return;
 
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch {
       // Ignore storage errors in private browsing or restricted environments.
     }
-  }, [key, value]);
+  }, [key, skipPersistence, value]);
 
-  return [value, setValue];
+  const updateValue = (nextValue) => {
+    setSkipPersistence(false);
+    setValue(nextValue);
+  };
+
+  const clearValue = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(key);
+    }
+    setSkipPersistence(true);
+    setValue(normalize(initialValue));
+  };
+
+  return [value, updateValue, clearValue];
 }

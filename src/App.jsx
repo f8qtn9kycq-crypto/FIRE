@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import FAQ from "./components/FAQ";
 import Inputs from "./components/Inputs";
 import FormulaGuide from "./components/FormulaGuide";
+import PlanActions from "./components/PlanActions";
 import Projection from "./components/Projection";
 import Risk from "./components/Risk";
 import Tax from "./components/Tax";
@@ -40,7 +41,12 @@ export default function App() {
     if (typeof window === "undefined") return null;
     return parseInputsFromSearch(window.location.search);
   }, []);
-  const [inp, setInp] = useLocalStorage("fire-inputs", initialInputs, {
+  const urlIsBlank = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("blank") === "1";
+  }, []);
+  const [isResetState, setIsResetState] = useState(urlIsBlank);
+  const [inp, setInp, clearStoredInputs] = useLocalStorage("fire-inputs", initialInputs, {
     overrideValue: urlInputs,
     normalize: normalizeInputs,
   });
@@ -53,11 +59,22 @@ export default function App() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const query = serializeInputsToSearch(inp);
-    window.history.replaceState({}, "", `${window.location.pathname}?${query}`);
-  }, [inp]);
+    const query = isResetState ? "blank=1" : serializeInputsToSearch(inp);
+    const nextUrl = `${window.location.pathname}?${query}`;
+    window.history.replaceState({}, "", nextUrl);
+  }, [inp, isResetState]);
+
+  const resetInputs = () => {
+    if (typeof window === "undefined") return;
+    const confirmed = window.confirm("確定要清除目前的退休規劃資料嗎？清除後將回到空白試算。");
+    if (!confirmed) return;
+
+    clearStoredInputs();
+    setIsResetState(true);
+  };
 
   const setInput = (key, value) => {
+    setIsResetState(false);
     if (typeof key === "object") {
       setInp((prev) => ({ ...prev, ...key }));
       return;
@@ -102,6 +119,7 @@ export default function App() {
             <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>{t.title}</div>
           </div>
           <div className="header-actions">
+            <PlanActions onReset={resetInputs} />
             <button type="button" onClick={() => setActivePage("faq")}>
               FAQ
             </button>
