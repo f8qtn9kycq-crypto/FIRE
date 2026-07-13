@@ -25,8 +25,14 @@ source_of_truth:
     - AGENTS.md
     - .github/pull_request_template.md
     - .github/ai-automation.yml
+    - REVIEW.md
     - README.md
-  supporting_docs: []
+  supporting_docs:
+    - docs/ai-workflow.md
+    - docs/project-workflow.md
+    - docs/pr-workflow.md
+    - docs/codex-issue-workflow.md
+    - docs/product-workflow.md
 
 preflight:
   required_before_github_mutation:
@@ -171,6 +177,17 @@ control_plane:
       - Tier 1
       - Tier 2
       - Tier 3
+    ai_owner:
+      - Codex
+      - Claude
+      - ChatGPT
+      - Gemini
+    area:
+      - Safety
+      - i18n
+      - Progress
+      - UX
+      - Workflow
 
 boundaries:
   do_not_touch_without_explicit_scope:
@@ -203,3 +220,23 @@ reporting:
     - review verdicts retrieved
     - merge or stop reason
     - next recommended action
+
+project_v2:
+  owner: f8qtn9kycq-crypto
+  owner_type: user
+  number: 2
+  token_secret: PROJECTS_TOKEN
+  field_names:
+    - Status
+    - Priority
+    - Risk Tier
+    - AI Owner
+    - Area
+  status_options:
+    - Backlog
+    - Ready for Codex
+    - In Progress
+    - PR Review
+    - Review
+    - Ready to Merge
+    - Done
