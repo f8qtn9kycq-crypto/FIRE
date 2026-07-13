@@ -1,0 +1,40 @@
+version: 1
+repository:
+  expected: f8qtn9kycq-crypto/FIRE
+  verify_remote_before_mutation: true
+  stop_on_mismatch: true
+execution:
+  max_issue_or_pr_units_per_run: 1
+  branch_required: true
+  pull_request_required: true
+  merge_automatically: false
+  keep_scope_minimal: true
+validation:
+  docs_or_workflow:
+    - git diff --check
+    - validate YAML or shell syntax when practical
+  runtime:
+    - npm run build
+project:
+  owner: f8qtn9kycq-crypto
+  owner_type: user
+  number: 2
+  token_secret: PROJECTS_TOKEN
+  fields:
+    - Status
+    - Priority
+    - Risk Tier
+    - AI Owner
+    - Area
+review:
+  source_of_truth:
+    - AGENTS.md
+    - REVIEW.md
+    - .github/pull_request_template.md
+    - docs/project-workflow.md
+  ready_to_merge_requires:
+    - open pull request
+    - non-draft pull request
+    - clean merge state
+    - successful current-head Build check
+    - no active requested-changes review
