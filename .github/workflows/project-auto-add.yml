@@ -1,0 +1,270 @@
+name: Project auto-add
+
+on:
+  issues:
+    types: [opened, reopened, edited, labeled, closed]
+  pull_request:
+    types: [opened, reopened, edited, synchronize, ready_for_review, labeled, closed]
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      target_type:
+        description: GitHub content type to add or update
+        required: true
+        default: issue
+        type: choice
+        options: [issue, pull_request]
+      target_number:
+        description: Issue or pull request number
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  # This does not grant Projects V2 access. PROJECTS_TOKEN is still required.
+  repository-projects: write
+
+jobs:
+  sync-project:
+    name: Add content and sync Project fields
+    if: >-
+      (github.event_name != 'issues' || github.event.issue.pull_request == null) &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.pull_requests[0].number != null)
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_OWNER: f8qtn9kycq-crypto
+      PROJECT_OWNER_TYPE: user
+      PROJECT_NUMBER: "4"
+      DEFAULT_ISSUE_STATUS: Backlog
+      DEFAULT_AI_OWNER: Codex
+      GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+    steps:
+      - name: Verify PROJECTS_TOKEN is set
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "::error::PROJECTS_TOKEN is required for Projects V2 field writes. GITHUB_TOKEN is not a fallback."
+            exit 1
+          fi
+
+      - name: Resolve content and sync fields
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_WORKFLOW_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          INPUT_TARGET_TYPE: ${{ inputs.target_type }}
+          INPUT_TARGET_NUMBER: ${{ inputs.target_number }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            target_type="$INPUT_TARGET_TYPE"
+            target_number="$INPUT_TARGET_NUMBER"
+          elif [[ "$EVENT_NAME" == "pull_request" ]]; then
+            target_type="pull_request"
+            target_number="$EVENT_PR_NUMBER"
+          elif [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            target_type="pull_request"
+            target_number="$EVENT_WORKFLOW_PR_NUMBER"
+          else
+            target_type="issue"
+            target_number="$EVENT_ISSUE_NUMBER"
+          fi
+
+          if [[ "$target_type" != "issue" && "$target_type" != "pull_request" ]]; then
+            echo "::error::target_type must be issue or pull_request."
+            exit 1
+          fi
+          if ! [[ "$target_number" =~ ^[0-9]+$ ]]; then
+            echo "::error::target_number must be numeric."
+            exit 1
+          fi
+
+          if [[ "$target_type" == "issue" ]]; then
+            content_json="$(gh api "repos/$GITHUB_REPOSITORY/issues/$target_number")"
+            if jq -e 'has("pull_request")' <<<"$content_json" >/dev/null; then
+              echo "::error::#$target_number is a pull request. Re-run with target_type=pull_request."
+              exit 1
+            fi
+          else
+            content_json="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$target_number")"
+          fi
+
+          content_id="$(jq -r '.node_id' <<<"$content_json")"
+          content_url="$(jq -r '.html_url' <<<"$content_json")"
+          content_title="$(jq -r '.title // ""' <<<"$content_json")"
+          content_body="$(jq -r '.body // ""' <<<"$content_json")"
+          content_state="$(jq -r '.state // ""' <<<"$content_json")"
+          content_state_reason="$(jq -r '.state_reason // ""' <<<"$content_json")"
+          content_merged="$(jq -r '.merged // false' <<<"$content_json")"
+          labels="$(jq -r '[.labels[]?.name] | join(" ")' <<<"$content_json")"
+
+          case "$PROJECT_OWNER_TYPE" in
+            user) owner_query='user(login: $owner)' ;;
+            organization) owner_query='organization(login: $owner)' ;;
+            *) echo "::error::PROJECT_OWNER_TYPE must be user or organization."; exit 1 ;;
+          esac
+
+          project_query="$(cat <<GRAPHQL
+          query(\$owner: String!, \$number: Int!) {
+            owner: $owner_query {
+              projectV2(number: \$number) {
+                id
+                fields(first: 100) {
+                  nodes {
+                    ... on ProjectV2Field { id name }
+                    ... on ProjectV2SingleSelectField {
+                      id name options { id name }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          GRAPHQL
+          )"
+
+          project_json="$(gh api graphql -f query="$project_query" -f owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER")"
+          project_id="$(jq -r '.data.owner.projectV2.id // ""' <<<"$project_json")"
+          fields_json="$(jq -c '.data.owner.projectV2.fields.nodes // []' <<<"$project_json")"
+          if [[ -z "$project_id" ]]; then
+            echo "::error::Project #$PROJECT_NUMBER was not found for $PROJECT_OWNER_TYPE owner '$PROJECT_OWNER'."
+            exit 1
+          fi
+
+          add_item() {
+            local result
+            set +e
+            result="$(gh api graphql \
+              -f query='mutation($projectId: ID!, $contentId: ID!) { addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) { item { id } } }' \
+              -f projectId="$project_id" -f contentId="$content_id" 2>/tmp/project-add-error)"
+            local status=$?
+            set -e
+            if [[ $status -eq 0 ]]; then
+              local new_item_id
+              new_item_id="$(jq -r '.data.addProjectV2ItemById.item.id // empty' <<<"$result")"
+              if [[ -n "$new_item_id" ]]; then
+                printf '%s\n' "$new_item_id"
+                return 0
+              fi
+            fi
+
+            echo "Project item may already exist; looking it up by URL." >&2
+            local lookup_query page_json cursor="" candidate has_next
+            lookup_query='query($projectId: ID!, $cursor: String) { node(id: $projectId) { ... on ProjectV2 { items(first: 100, after: $cursor) { pageInfo { hasNextPage endCursor } nodes { id content { ... on Issue { url } ... on PullRequest { url } } } } } } }'
+            while true; do
+              if [[ -n "$cursor" ]]; then
+                page_json="$(gh api graphql -f query="$lookup_query" -f projectId="$project_id" -f cursor="$cursor")"
+              else
+                page_json="$(gh api graphql -f query="$lookup_query" -f projectId="$project_id")"
+              fi
+
+              candidate="$(jq -r --arg url "$content_url" '[.data.node.items.nodes[]? | select(.content.url == $url) | .id][0] // empty' <<<"$page_json")"
+              if [[ -n "$candidate" ]]; then
+                printf '%s\n' "$candidate"
+                return 0
+              fi
+
+              has_next="$(jq -r '.data.node.items.pageInfo.hasNextPage // false' <<<"$page_json")"
+              [[ "$has_next" == "true" ]] || break
+              cursor="$(jq -r '.data.node.items.pageInfo.endCursor // empty' <<<"$page_json")"
+              [[ -n "$cursor" ]] || break
+            done
+          }
+
+          item_id="$(add_item)"
+          if [[ -z "$item_id" ]]; then
+            echo "::error::Unable to add or find Project item for $content_url."
+            exit 1
+          fi
+
+          option_exists() {
+            local field_name="$1"
+            local option_name="$2"
+            jq -e --arg field "$field_name" --arg option "$option_name" \
+              '.[] | select(.name == $field) | .options[]? | select(.name == $option)' <<<"$fields_json" >/dev/null
+          }
+
+          set_field() {
+            local field_name="$1"
+            local option_name="$2"
+            [[ -z "$option_name" ]] && return 0
+            if ! option_exists "$field_name" "$option_name"; then
+              echo "Skipping $field_name=$option_name because the Project option is absent."
+              return 0
+            fi
+            local field_id option_id
+            field_id="$(jq -r --arg field "$field_name" '.[] | select(.name == $field) | .id' <<<"$fields_json" | head -n 1)"
+            option_id="$(jq -r --arg field "$field_name" --arg option "$option_name" '.[] | select(.name == $field) | .options[]? | select(.name == $option) | .id' <<<"$fields_json" | head -n 1)"
+            gh api graphql \
+              -f query='mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) { updateProjectV2ItemFieldValue(input: { projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: { singleSelectOptionId: $optionId } }) { projectV2Item { id } } }' \
+              -f projectId="$project_id" -f itemId="$item_id" -f fieldId="$field_id" -f optionId="$option_id" >/dev/null
+            echo "Set $field_name=$option_name"
+          }
+
+          metadata_value() {
+            local field_name="$1"
+            printf '%s\n' "$content_title" "$content_body" "$labels" \
+              | grep -Eim1 "^[[:space:]]*${field_name}:[[:space:]]*(.+)$" \
+              | sed -E "s/^[[:space:]]*${field_name}:[[:space:]]*//I" | xargs || true
+          }
+
+          priority="$(metadata_value Priority)"
+          risk_tier="$(metadata_value 'Risk Tier')"
+          ai_owner="$(metadata_value 'AI Owner')"
+          area="$(metadata_value Area)"
+          status="$(metadata_value Status)"
+
+          [[ "$priority" =~ ^P[012]$ ]] || priority="$(printf '%s\n' "$content_title" "$content_body" | grep -Eo '(^|[^A-Za-z0-9])P[012]([^A-Za-z0-9]|$)' | grep -Eo 'P[012]' | head -n 1 || true)"
+          [[ "$risk_tier" =~ ^Tier\ [0-3]$ ]] || risk_tier="$(printf '%s\n' "$content_title" "$content_body" | grep -Eio 'Tier[[:space:]]*[0-3]' | sed -E 's/[[:space:]]+/ /' | head -n 1 || true)"
+          [[ "$ai_owner" =~ ^(Codex|Claude|ChatGPT|Gemini)$ ]] || ai_owner="$DEFAULT_AI_OWNER"
+          [[ "$area" =~ ^(Safety|i18n|Progress|UX|Workflow)$ ]] || area=""
+
+          if [[ "$target_type" == "issue" ]]; then
+            if [[ "$content_state" == "open" ]]; then
+              [[ -n "$status" ]] || status="$DEFAULT_ISSUE_STATUS"
+            elif [[ "$content_state" == "closed" && "$content_state_reason" == "completed" ]]; then
+              status="Done"
+            else
+              status=""
+            fi
+          elif [[ "$content_merged" == "true" ]]; then
+            status="Done"
+          elif [[ "$content_state" == "open" ]]; then
+            status="Review"
+            pr_draft="$(jq -r '.draft // false' <<<"$content_json")"
+            mergeable="$(jq -r '.mergeable // false' <<<"$content_json")"
+            mergeable_state="$(jq -r '.mergeable_state // ""' <<<"$content_json")"
+            head_sha="$(jq -r '.head.sha // ""' <<<"$content_json")"
+            if option_exists Status "Ready to Merge" && [[ "$pr_draft" == "false" && "$mergeable" == "true" && "$mergeable_state" == "clean" && -n "$head_sha" ]]; then
+              has_build="$(gh api "repos/$GITHUB_REPOSITORY/commits/$head_sha/check-runs?per_page=100" | jq -r '[.check_runs[]? | select((.name | ascii_downcase) == "build" and .head_sha == $sha and .status == "completed" and .conclusion == "success")] | length > 0' --arg sha "$head_sha")"
+              has_changes="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$target_number/reviews?per_page=100" | jq -r '[.[]? | select(.user.login != null)] | group_by(.user.login) | map(sort_by(.submitted_at // "") | last) | any(.state == "CHANGES_REQUESTED")')"
+              if [[ "$has_build" == "true" && "$has_changes" == "false" ]]; then
+                status="Ready to Merge"
+              fi
+            fi
+          fi
+
+          if [[ "$target_type" == "pull_request" && "$status" == "Review" ]]; then
+            if ! option_exists Status "Review"; then
+              if option_exists Status "PR Review"; then
+                status="PR Review"
+              else
+                status="In Progress"
+              fi
+            fi
+          fi
+
+          set_field Status "$status"
+          set_field Priority "$priority"
+          set_field "Risk Tier" "$risk_tier"
+          set_field "AI Owner" "$ai_owner"
+          set_field Area "$area"
+          echo "Project automation completed for $content_url"
