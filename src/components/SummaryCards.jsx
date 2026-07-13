@@ -188,6 +188,10 @@ export function NumInput({
   prefix = "NT$",
   formatValue = null,
   parseValue = null,
+  id,
+  inputRef,
+  isMissing = false,
+  errorText = "",
 }) {
   const [displayValue, setDisplayValue] = useState(() => (formatValue ? formatValue(value) : value === 0 ? "" : String(value)));
   const [isFocused, setIsFocused] = useState(false);
@@ -204,14 +208,16 @@ export function NumInput({
 
   return (
     <div className="num-input-block">
-      <label className="num-input-label">{label}</label>
-      <div className="num-input-wrapper">
+      <label className="num-input-label" htmlFor={id}>{label}</label>
+      <div className={`num-input-wrapper ${isMissing ? "is-missing" : ""}`}>
         {isWan && (
           <span className="num-input-prefix">
             {prefix}
           </span>
         )}
         <input
+          id={id}
+          ref={inputRef}
           type={parseValue ? "text" : "number"}
           inputMode="decimal"
           placeholder={placeholder}
@@ -226,9 +232,12 @@ export function NumInput({
             if (formatValue) setDisplayValue(formatValue(parseValue ? parseValue(displayValue) : value));
           }}
           className="num-input-control"
+          aria-invalid={isMissing}
+          aria-describedby={errorText && id ? `${id}-error` : undefined}
         />
         {isWan && <span className="num-input-suffix">萬</span>}
       </div>
+      {errorText && <div className="input-error" id={id ? `${id}-error` : undefined}>{errorText}</div>}
     </div>
   );
 }
