@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { clearStoredValue, shouldSkipInitialPersistence } from "../utils/storagePersistence";
 
 export function useLocalStorage(key, initialValue, options = {}) {
-  const { overrideValue, normalize = (value) => value } = options;
-  const [skipPersistence, setSkipPersistence] = useState(false);
+  const { overrideValue, normalize = (value) => value, persistOverride = true } = options;
+  const [skipPersistence, setSkipPersistence] = useState(() =>
+    shouldSkipInitialPersistence(Boolean(overrideValue), persistOverride),
+  );
 
   const [value, setValue] = useState(() => {
     if (overrideValue) return normalize(overrideValue);
@@ -34,7 +37,7 @@ export function useLocalStorage(key, initialValue, options = {}) {
 
   const clearValue = () => {
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem(key);
+      clearStoredValue(window.localStorage, key);
     }
     setSkipPersistence(true);
     setValue(normalize(initialValue));

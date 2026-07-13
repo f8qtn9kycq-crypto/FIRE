@@ -49,6 +49,7 @@ export default function App() {
   const [inp, setInp, clearStoredInputs] = useLocalStorage("fire-inputs", initialInputs, {
     overrideValue: urlInputs,
     normalize: normalizeInputs,
+    persistOverride: !urlIsBlank,
   });
 
   const ready = useMemo(() => isReady(inp), [inp]);

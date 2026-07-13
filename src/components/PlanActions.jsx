@@ -49,6 +49,9 @@ export default function PlanActions({ onReset }) {
               關閉
             </button>
           </div>
+          <p className="share-privacy-note">
+            分享目前輸入會把試算數字放在網址中，請只分享給信任的人。分享空白試算不會帶入目前數字。
+          </p>
           <button type="button" className="share-option" onClick={() => copyShareUrl("current")}>
             分享目前輸入
             <span>保留目前的試算數字</span>

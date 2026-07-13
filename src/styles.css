@@ -118,6 +118,13 @@ select:focus-visible {
   font-size: 14px;
 }
 
+.share-privacy-note {
+  margin: 0 0 10px;
+  color: #c8953a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .share-close-button {
   min-height: 36px !important;
   padding: 5px 8px !important;
