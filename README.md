@@ -31,9 +31,9 @@ Default rules:
 - `AGENTS.md`: repository and AI execution contract
 - `REVIEW.md`: severity, review, and merge gate
 - `.github/ai-automation.yml`: repo identity, risk routing, and one-unit execution
-- `.github/workflows/project-auto-add.yml`: Project #2 lifecycle and custom-field sync
+- `.github/workflows/project-auto-add.yml`: Project #4 lifecycle and custom-field sync
 - `docs/project-workflow.md`: Project fields, lifecycle rules, and backfill
 - `docs/pr-workflow.md`: branch, evidence, merge, and cleanup rules
 - `docs/codex-issue-workflow.md`: issue-to-PR contract
 
-Project #2 custom fields are `Status`, `Priority`, `Risk Tier`, `AI Owner`, and `Area`. Projects V2 writes require `PROJECTS_TOKEN`; the workflow fails fast when it is unavailable.
+Project #4 custom fields are `Status`, `Priority`, `Risk Tier`, `AI Owner`, and `Area`. Projects V2 writes require `PROJECTS_TOKEN`; the workflow fails fast when it is unavailable.

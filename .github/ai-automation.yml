@@ -224,7 +224,7 @@ reporting:
 project_v2:
   owner: f8qtn9kycq-crypto
   owner_type: user
-  number: 2
+  number: 4
   token_secret: PROJECTS_TOKEN
   field_names:
     - Status

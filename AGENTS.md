@@ -119,7 +119,7 @@ Do not suggest broad rewrites.
 
 Before review, read `REVIEW.md`. Before workflow, issue selection, or Project mutation, read the relevant files under `docs/`.
 
-FIRE follows the reference `f8qtn9kycq-crypto/rehab-workout` Project #2 contract. The shared single-select fields are:
+FIRE follows the reference `f8qtn9kycq-crypto/rehab-workout` Project #4 contract. The shared single-select fields are:
 
 - `Status`: `Backlog`, `Ready for Codex`, `In Progress`, `PR Review`, `Review`, `Ready to Merge`, `Done`
 - `Priority`: `P0`, `P1`, `P2`

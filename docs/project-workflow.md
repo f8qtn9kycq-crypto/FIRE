@@ -6,7 +6,7 @@ FIRE follows the Project V2 operating pattern used by the reference `f8qtn9kycq-
 
 - Owner: `f8qtn9kycq-crypto`
 - Owner type: `user`
-- Project number: `2`
+- Project number: `4`
 - Required repository secret: `PROJECTS_TOKEN`
 - Workflow: `.github/workflows/project-auto-add.yml`
 
@@ -14,7 +14,7 @@ The token must have Projects V2 read/write access and repository access. `GITHUB
 
 ## Custom Fields
 
-Create or preserve these Project #2 single-select fields and options:
+Create or preserve these Project #4 single-select fields and options:
 
 | Field | Options |
 | --- | --- |

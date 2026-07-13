@@ -42,4 +42,4 @@ Tier 0 workflow and docs changes normally need Codex review and syntax evidence.
 
 ## Feedback to Issues
 
-Production bugs, data-loss risks, incorrect financial results, and blockers become GitHub issues immediately. Ideas and observations should be clarified before issue creation. Each implementation issue should include priority, risk tier, AI owner, area, scope, validation, and acceptance criteria so Project #2 can classify it.
+Production bugs, data-loss risks, incorrect financial results, and blockers become GitHub issues immediately. Ideas and observations should be clarified before issue creation. Each implementation issue should include priority, risk tier, AI owner, area, scope, validation, and acceptance criteria so Project #4 can classify it.

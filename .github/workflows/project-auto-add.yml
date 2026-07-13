@@ -33,7 +33,7 @@ jobs:
     env:
       PROJECT_OWNER: f8qtn9kycq-crypto
       PROJECT_OWNER_TYPE: user
-      PROJECT_NUMBER: "2"
+      PROJECT_NUMBER: "4"
       DEFAULT_ISSUE_STATUS: Backlog
       DEFAULT_AI_OWNER: Codex
       GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
