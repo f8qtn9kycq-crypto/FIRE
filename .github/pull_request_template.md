@@ -58,3 +58,28 @@ What user problem this addresses:
 
 - [ ] Branch can be deleted after merge
 - [ ] No follow-up work depends on this branch
+
+
+## Review contract
+
+- [ ] Read `REVIEW.md`
+- [ ] Read the relevant `docs/` workflow or product document
+- [ ] Used one issue, one branch, and one PR
+- [ ] Kept Project V2 writes dependent on `PROJECTS_TOKEN`
+- [ ] Did not use `GITHUB_TOKEN` as a Projects V2 fallback
+
+## Project fields
+
+If this PR is an issue or PR workflow event, metadata is explicit where applicable:
+
+- Status:
+- Priority:
+- Risk Tier:
+- AI Owner:
+- Area:
+
+## Single-unit execution
+
+- [ ] This PR implements one scoped issue or one repository setup unit
+- [ ] No unrelated generated files are included
+- [ ] No automatic merge is enabled
