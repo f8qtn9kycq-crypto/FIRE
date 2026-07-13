@@ -5,6 +5,9 @@ on:
     types: [opened, reopened, edited, labeled, closed]
   pull_request:
     types: [opened, reopened, edited, synchronize, ready_for_review, labeled, closed]
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
   workflow_dispatch:
     inputs:
       target_type:
@@ -28,7 +31,9 @@ permissions:
 jobs:
   sync-project:
     name: Add content and sync Project fields
-    if: github.event_name != 'issues' || github.event.issue.pull_request == null
+    if: >-
+      (github.event_name != 'issues' || github.event.issue.pull_request == null) &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.pull_requests[0].number != null)
     runs-on: ubuntu-latest
     env:
       PROJECT_OWNER: f8qtn9kycq-crypto
@@ -53,6 +58,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
           EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_WORKFLOW_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
           INPUT_TARGET_TYPE: ${{ inputs.target_type }}
           INPUT_TARGET_NUMBER: ${{ inputs.target_number }}
         run: |
@@ -64,6 +70,9 @@ jobs:
           elif [[ "$EVENT_NAME" == "pull_request" ]]; then
             target_type="pull_request"
             target_number="$EVENT_PR_NUMBER"
+          elif [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            target_type="pull_request"
+            target_number="$EVENT_WORKFLOW_PR_NUMBER"
           else
             target_type="issue"
             target_number="$EVENT_ISSUE_NUMBER"
@@ -139,16 +148,35 @@ jobs:
             local status=$?
             set -e
             if [[ $status -eq 0 ]]; then
-              jq -r '.data.addProjectV2ItemById.item.id // empty' <<<"$result"
-              return 0
+              local new_item_id
+              new_item_id="$(jq -r '.data.addProjectV2ItemById.item.id // empty' <<<"$result")"
+              if [[ -n "$new_item_id" ]]; then
+                printf '%s\n' "$new_item_id"
+                return 0
+              fi
             fi
 
             echo "Project item may already exist; looking it up by URL." >&2
-            local items
-            items="$(gh api graphql \
-              -f query='query($projectId: ID!) { node(id: $projectId) { ... on ProjectV2 { items(first: 100) { nodes { id content { ... on Issue { url } ... on PullRequest { url } } } } } } }' \
-              -f projectId="$project_id")"
-            jq -r --arg url "$content_url" '.data.node.items.nodes[]? | select(.content.url == $url) | .id' <<<"$items" | head -n 1
+            local lookup_query page_json cursor="" candidate has_next
+            lookup_query='query($projectId: ID!, $cursor: String) { node(id: $projectId) { ... on ProjectV2 { items(first: 100, after: $cursor) { pageInfo { hasNextPage endCursor } nodes { id content { ... on Issue { url } ... on PullRequest { url } } } } } } }'
+            while true; do
+              if [[ -n "$cursor" ]]; then
+                page_json="$(gh api graphql -f query="$lookup_query" -f projectId="$project_id" -f cursor="$cursor")"
+              else
+                page_json="$(gh api graphql -f query="$lookup_query" -f projectId="$project_id")"
+              fi
+
+              candidate="$(jq -r --arg url "$content_url" '[.data.node.items.nodes[]? | select(.content.url == $url) | .id][0] // empty' <<<"$page_json")"
+              if [[ -n "$candidate" ]]; then
+                printf '%s\n' "$candidate"
+                return 0
+              fi
+
+              has_next="$(jq -r '.data.node.items.pageInfo.hasNextPage // false' <<<"$page_json")"
+              [[ "$has_next" == "true" ]] || break
+              cursor="$(jq -r '.data.node.items.pageInfo.endCursor // empty' <<<"$page_json")"
+              [[ -n "$cursor" ]] || break
+            done
           }
 
           item_id="$(add_item)"
