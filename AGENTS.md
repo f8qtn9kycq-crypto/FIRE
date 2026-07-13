@@ -113,3 +113,18 @@ Return:
 
 Do not include P2 wishlist items unless explicitly requested.
 Do not suggest broad rewrites.
+
+
+## Review and Project Workflow Contract
+
+Before review, read `REVIEW.md`. Before workflow, issue selection, or Project mutation, read the relevant files under `docs/`.
+
+FIRE follows the reference `f8qtn9kycq-crypto/rehab-workout` Project #2 contract. The shared single-select fields are:
+
+- `Status`: `Backlog`, `Ready for Codex`, `In Progress`, `PR Review`, `Review`, `Ready to Merge`, `Done`
+- `Priority`: `P0`, `P1`, `P2`
+- `Risk Tier`: `Tier 0`, `Tier 1`, `Tier 2`, `Tier 3`
+- `AI Owner`: `Codex`, `Claude`, `ChatGPT`, `Gemini`
+- `Area`: `Safety`, `i18n`, `Progress`, `UX`, `Workflow`
+
+Use one issue, one branch, and one PR per unit. Keep generated files out of PRs, preserve finance and data behavior, and stop before merge for explicit human approval. Projects V2 writes require the repository secret `PROJECTS_TOKEN`; never fall back to `GITHUB_TOKEN`.
