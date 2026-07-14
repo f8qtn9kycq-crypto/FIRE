@@ -6,6 +6,7 @@ import PlanActions from "./components/PlanActions";
 import Projection from "./components/Projection";
 import Risk from "./components/Risk";
 import Tax from "./components/Tax";
+import UtilityIcon from "./components/UtilityIcon";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import zhTW from "./i18n/zhTW";
 import {
@@ -113,19 +114,23 @@ export default function App() {
   return (
     <div className="app-shell">
       <div className="app-header">
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-          <div style={{ flex: 1 }}>
+        <div className="app-header-main">
+          <div className="app-title-block">
             <div style={{ fontSize: 11, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>{t.headerKicker}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>{t.title}</div>
+            <div className="app-title">{t.title}</div>
           </div>
           <div className="header-actions">
             <PlanActions onReset={resetInputs} />
             <button type="button" className="header-action-button" aria-label="常見問題" title="常見問題" onClick={() => setActivePage("faq")}>
-              <span className="header-action-icon" aria-hidden="true">?</span>
+              <span className="header-action-icon" aria-hidden="true">
+                <UtilityIcon name="help" />
+              </span>
               <span className="header-action-label">FAQ</span>
             </button>
             <button type="button" className="header-action-button" aria-label="計算公式" title="計算公式" onClick={() => setActivePage("guide")}>
-              <span className="header-action-icon" aria-hidden="true">ƒx</span>
+              <span className="header-action-icon" aria-hidden="true">
+                <UtilityIcon name="formula" />
+              </span>
               <span className="header-action-label">公式</span>
             </button>
           </div>
