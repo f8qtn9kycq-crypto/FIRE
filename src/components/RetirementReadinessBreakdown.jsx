@@ -64,10 +64,10 @@ export default function RetirementReadinessBreakdown({ inp, res }) {
     <section className={`readiness-card ${tone}`}>
       <div className="readiness-header">
         <span>退休準備度分析</span>
-        <h3>{breakdown.fireReadyAtRet ? "你已達到 FIRE 條件" : "目前還需要調整"}</h3>
+        <h3>{breakdown.fireReadyAtRet ? "依目前假設可達 FIRE" : "目前還需要調整"}</h3>
         <p>
           {breakdown.fireReadyAtRet
-            ? "依照目前設定，退休時投資組合可覆蓋目標，仍建議留意熊市與通膨壓力。"
+            ? "依目前假設，退休時投資組合可覆蓋目標；結果會隨報酬、通膨與支出變化，仍建議留意熊市壓力。"
             : "目前設定下，退休時資產尚未完全覆蓋目標；可從投入金額、退休時間或支出假設調整。"}
         </p>
       </div>

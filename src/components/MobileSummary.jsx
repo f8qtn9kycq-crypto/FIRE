@@ -20,19 +20,19 @@ export default function MobileSummary({ inp, res, story }) {
       <h2>{story?.status || statusText}</h2>
       <p>
         {res.fireReadyAtRet
-          ? "依目前設定，退休時資產可覆蓋 FIRE 目標。"
+          ? "依目前假設，退休時資產可覆蓋 FIRE 目標；結果會隨報酬、通膨與支出變化。"
           : "目前設定下還需要調整資產、支出或退休時間。"}
       </p>
 
       <div className="phase-summary-rate">
         <span>{achievementRate}%</span>
-        <strong>達標率</strong>
+        <strong>退休時達標率</strong>
       </div>
 
       <div className="phase-summary-list">
         <div>
-          <span>目前資產</span>
-          <strong>{fmt(res.savedRaw, res.currency)}</strong>
+          <span>退休時資產</span>
+          <strong>{fmt(res.portAtRet, res.currency)}</strong>
         </div>
         <div>
           <span>FIRE 目標</span>

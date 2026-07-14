@@ -47,7 +47,7 @@ select:focus-visible {
 
 .app-header,
 .guide-header {
-  padding: 20px 18px 14px;
+  padding: 16px 18px 11px;
   border-bottom: 1px solid #2e2c28;
 }
 
@@ -73,7 +73,7 @@ select:focus-visible {
 
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   align-items: flex-start;
 }
@@ -89,6 +89,76 @@ select:focus-visible {
   cursor: pointer;
 }
 
+.header-action-button {
+  min-width: 44px;
+}
+
+.header-action-icon {
+  display: none;
+}
+
+.input-progress {
+  position: sticky;
+  top: 52px;
+  z-index: 9;
+  margin: 0 0 18px;
+  padding: 12px;
+  border: 1px solid #2e2c28;
+  border-radius: 8px;
+  background: rgba(23, 22, 18, 0.96);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.input-progress-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #e8e4dc;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.input-progress-header span {
+  color: #c8a96e;
+  text-align: right;
+}
+
+.input-progress-track {
+  height: 6px;
+  margin: 10px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #2e2c28;
+}
+
+.input-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #c8a96e;
+  transition: width 0.2s ease;
+}
+
+.input-progress-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.input-progress-chips span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #102f23;
+  color: #4caf85;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.input-progress-chips span.is-next {
+  background: #2b2416;
+  color: #c8a96e;
+}
+
 .plan-actions {
   position: relative;
   display: flex;
@@ -96,11 +166,14 @@ select:focus-visible {
 }
 
 .share-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 40;
-  width: min(300px, calc(100vw - 32px));
+  width: min(320px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow: auto;
   padding: 14px;
   border: 1px solid #4a402d;
   border-radius: 8px;
@@ -287,7 +360,9 @@ money-grid,
 
 .phase-summary-rate strong {
   color: #9b9890;
-  font-size: 15px;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: right;
 }
 
 .phase-summary-list {
@@ -527,6 +602,23 @@ money-grid,
   background: #1a1916;
   color: #c8a96e;
   cursor: pointer;
+}
+
+.risk-explanation,
+.tax-assumption-note {
+  margin: -8px 0 16px;
+  padding: 10px 12px;
+  border-left: 3px solid #c8a96e;
+  border-radius: 0 8px 8px 0;
+  background: #1a1916;
+  color: #b0ada6;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.tax-assumption-note {
+  margin: 0 0 12px;
+  border-left-color: #5b9bd5;
 }
 
 .preset-button {
@@ -1086,6 +1178,67 @@ money-grid,
   color: #b0ada6;
   font-size: 16px;
   line-height: 1.8;
+}
+
+@media (max-width: 759px) {
+  .app-header {
+    padding-top: 14px;
+    padding-bottom: 9px;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .header-action-button {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 !important;
+    display: grid;
+    place-items: center;
+    border-color: transparent !important;
+    background: transparent !important;
+  }
+
+  .header-action-button::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid #2e2c28;
+    border-radius: 7px;
+    background: #1a1916;
+  }
+
+  .header-action-label {
+    display: none;
+  }
+
+  .header-action-icon {
+    position: relative;
+    z-index: 1;
+    display: block;
+    color: #c8a96e;
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .header-action-icon svg {
+    width: 19px;
+    height: 19px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .input-progress {
+    top: 52px;
+  }
 }
 
 @media (max-width: 768px) {

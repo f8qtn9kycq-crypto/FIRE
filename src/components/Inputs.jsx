@@ -27,6 +27,37 @@ const PRESETS = {
   ],
 };
 
+function CoreInputProgress({ inp }) {
+  const items = [
+    { label: "目前年齡", done: inp.age > 0 },
+    { label: "退休年齡", done: inp.retAge > 0 },
+    { label: "現金或投資總額", done: inp.cash > 0 || inp.investments > 0 },
+    { label: "退休生活費", done: inp.expenses > 0 },
+  ];
+  const completed = items.filter((item) => item.done).length;
+  const next = items.find((item) => !item.done);
+  const isComplete = completed === items.length;
+
+  return (
+    <section className="input-progress" aria-live="polite" aria-label="核心資料完成進度">
+      <div className="input-progress-header">
+        <strong>核心資料 {completed}/{items.length} 完成</strong>
+        <span>{isComplete ? "可以開始試算" : `下一步：${next.label}`}</span>
+      </div>
+      <div className="input-progress-track" aria-hidden="true">
+        <div className="input-progress-fill" style={{ width: `${(completed / items.length) * 100}%` }} />
+      </div>
+      <div className="input-progress-chips">
+        {items.filter((item) => item.done || item === next).map((item) => (
+          <span key={item.label} className={item.done ? "is-complete" : "is-next"}>
+            {item.done ? "完成" : "下一步"}：{item.label}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function Inputs({ inp, setInput, ready, res, story }) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const inputRefs = useRef({});
@@ -58,6 +89,7 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
   return (
     <div>
       <MobileSummary inp={inp} res={res} story={story} />
+      <CoreInputProgress inp={inp} />
 
       {shouldShowValidation && (
         <div className={`validation-alert ${validationAlert.alertType}`}>

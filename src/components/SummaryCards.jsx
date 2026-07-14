@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fmt } from "../utils/formatters";
 
-export function MiniChart({ data, color = "#C8A96E", height = 80, startAge, currency }) {
+export function MiniChart({ data, color = "#C8A96E", height = 80, startAge, currency, ariaLabel }) {
   const ref = useRef(null);
   const [tip, setTip] = useState(null);
 
@@ -79,6 +79,8 @@ export function MiniChart({ data, color = "#C8A96E", height = 80, startAge, curr
   return (
     <div
       className="mini-chart"
+      role={ariaLabel ? "img" : undefined}
+      aria-label={ariaLabel}
       onPointerMove={updateTip}
       onPointerDown={updateTip}
       onPointerLeave={() => setTip(null)}
