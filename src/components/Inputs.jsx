@@ -104,25 +104,6 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
 
       <Divider />
       <SecLabel>核心試算</SecLabel>
-      <section className="completion-card" aria-live="polite">
-        <div className="completion-header">
-          <strong>核心資料 {completion.completedCount}/{completion.totalCount} 完成</strong>
-          <span>{completion.allComplete ? "可以開始試算" : "還有資料需要補上"}</span>
-        </div>
-        <progress
-          className="completion-progress"
-          value={completion.completedCount}
-          max={completion.totalCount}
-          aria-label={`核心資料完成 ${completion.completedCount} 項，共 ${completion.totalCount} 項`}
-        />
-        <div className="completion-list">
-          {completion.fields.map((field) => (
-            <span key={field.key} className={`completion-item ${field.isComplete ? "is-complete" : "is-missing"}`}>
-              {field.isComplete ? "完成" : "待填"}：{field.label}
-            </span>
-          ))}
-        </div>
-      </section>
       <div className="age-grid">
         <NumInput
           id="age"
