@@ -1,0 +1,4 @@
+interface:
+  display_name: "FIRE PR Review Gate"
+  short_description: "Review FIRE PR comments and merge gates"
+  default_prompt: "Use $fire-pr-review-gate to inspect FIRE PR review comments, validate the merge gate, and squash merge only after the required approvals are present."
