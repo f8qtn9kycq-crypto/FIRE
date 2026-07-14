@@ -41,7 +41,7 @@ export default function PlanActions({ onReset }) {
       >
         <span className="header-action-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
-            <path d="M12 16V3m0 0 5 5m-5-5-5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+            <path d="M21 3 3 10.53l7.53 2.94L13.47 21 21 3Zm-10.47 10.47L21 3" />
           </svg>
         </span>
         <span className="header-action-label">分享</span>
