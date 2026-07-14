@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import UtilityIcon from "./UtilityIcon";
 
 export const FIRE_BEGINNER_FAQ_ZH_TW = [
   {
@@ -145,8 +146,14 @@ export default function FAQ({ onBack }) {
   return (
     <div className="guide-shell">
       <div className="guide-header">
-        <button type="button" onClick={onBack} className="secondary-nav-button">
-          返回計算機
+        <button
+          type="button"
+          onClick={onBack}
+          className="secondary-nav-button icon-only-button"
+          aria-label="回到計算機"
+          title="回到計算機"
+        >
+          <UtilityIcon name="calculatorBack" />
         </button>
         <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>FIRE 入門</div>
         <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>常見問題</div>

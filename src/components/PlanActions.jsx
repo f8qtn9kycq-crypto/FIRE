@@ -1,4 +1,5 @@
 import { useState } from "react";
+import UtilityIcon from "./UtilityIcon";
 
 function getShareUrl(kind) {
   if (typeof window === "undefined") return "";
@@ -40,22 +41,28 @@ export default function PlanActions({ onReset }) {
         }}
       >
         <span className="header-action-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false">
-            <path d="M21 3 3 10.53l7.53 2.94L13.47 21 21 3Zm-10.47 10.47L21 3" />
-          </svg>
+          <UtilityIcon name="share" />
         </span>
         <span className="header-action-label">分享</span>
       </button>
       <button type="button" className="header-action-button" aria-label="重設" title="重設" onClick={onReset}>
-        <span className="header-action-icon" aria-hidden="true">↺</span>
+        <span className="header-action-icon" aria-hidden="true">
+          <UtilityIcon name="reset" />
+        </span>
         <span className="header-action-label">重設</span>
       </button>
       {shareOpen && (
         <div className="share-panel" id="share-panel" role="dialog" aria-modal="true" aria-label="分享試算">
           <div className="share-panel-header">
             <strong>選擇要分享的內容</strong>
-            <button type="button" className="share-close-button" onClick={() => setShareOpen(false)}>
-              關閉
+            <button
+              type="button"
+              className="share-close-button"
+              aria-label="關閉分享面板"
+              title="關閉分享面板"
+              onClick={() => setShareOpen(false)}
+            >
+              <UtilityIcon name="close" />
             </button>
           </div>
           <p className="share-privacy-note">

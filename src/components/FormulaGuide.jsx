@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import UtilityIcon from "./UtilityIcon";
 
 const SECTIONS = [
   {
@@ -203,9 +204,11 @@ export default function FormulaGuide({ onBack }) {
         <button
           type="button"
           onClick={onBack}
-          style={{ border: "1px solid #2E2C28", background: "#1A1916", color: "#C8A96E", borderRadius: 8, padding: "9px 12px", fontSize: 15, marginBottom: 14, cursor: "pointer" }}
+          className="secondary-nav-button icon-only-button"
+          aria-label="回到計算機"
+          title="回到計算機"
         >
-          返回計算機
+          <UtilityIcon name="calculatorBack" />
         </button>
         <div style={{ fontSize: 13, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>財務自由計算機</div>
         <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>計算公式說明</div>
