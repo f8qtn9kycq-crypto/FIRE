@@ -1191,12 +1191,25 @@ money-grid,
   }
 
   .header-action-button {
+    position: relative;
     width: 44px;
     height: 44px;
     min-width: 44px;
+    min-height: 44px;
     padding: 0 !important;
     display: grid;
     place-items: center;
+    border-color: transparent !important;
+    background: transparent !important;
+  }
+
+  .header-action-button::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid #2e2c28;
+    border-radius: 7px;
+    background: #1a1916;
   }
 
   .header-action-label {
@@ -1204,10 +1217,23 @@ money-grid,
   }
 
   .header-action-icon {
+    position: relative;
+    z-index: 1;
     display: block;
     color: #c8a96e;
     font-size: 21px;
     line-height: 1;
+  }
+
+  .header-action-icon svg {
+    width: 19px;
+    height: 19px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
   }
 
   .input-progress {

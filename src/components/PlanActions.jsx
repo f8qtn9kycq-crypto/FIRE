@@ -39,7 +39,11 @@ export default function PlanActions({ onReset }) {
           setShareStatus("");
         }}
       >
-        <span className="header-action-icon" aria-hidden="true">↗</span>
+        <span className="header-action-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 16V3m0 0 5 5m-5-5-5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+          </svg>
+        </span>
         <span className="header-action-label">分享</span>
       </button>
       <button type="button" className="header-action-button" aria-label="重設" title="重設" onClick={onReset}>
