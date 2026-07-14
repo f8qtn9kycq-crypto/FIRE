@@ -218,8 +218,8 @@ jobs:
           metadata_value() {
             local field_name="$1"
             printf '%s\n' "$content_title" "$content_body" "$labels" \
-              | grep -Eim1 "^[[:space:]]*${field_name}:[[:space:]]*(.+)$" \
-              | sed -E "s/^[[:space:]]*${field_name}:[[:space:]]*//I" | xargs || true
+              | grep -Eim1 "^[[:space:]]*([-*][[:space:]]*)?${field_name}:[[:space:]]*(.+)$" \
+              | sed -E "s/^[[:space:]]*([-*][[:space:]]*)?${field_name}:[[:space:]]*//I" | xargs || true
           }
 
           priority="$(metadata_value Priority)"
