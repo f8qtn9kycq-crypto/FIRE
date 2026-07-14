@@ -29,6 +29,9 @@ export default function PlanActions({ onReset }) {
     <div className="plan-actions">
       <button
         type="button"
+        className="header-action-button"
+        aria-label="分享"
+        title="分享"
         aria-expanded={shareOpen}
         aria-controls="share-panel"
         onClick={() => {
@@ -36,13 +39,15 @@ export default function PlanActions({ onReset }) {
           setShareStatus("");
         }}
       >
-        分享
+        <span className="header-action-icon" aria-hidden="true">↗</span>
+        <span className="header-action-label">分享</span>
       </button>
-      <button type="button" onClick={onReset}>
-        重設
+      <button type="button" className="header-action-button" aria-label="重設" title="重設" onClick={onReset}>
+        <span className="header-action-icon" aria-hidden="true">↺</span>
+        <span className="header-action-label">重設</span>
       </button>
       {shareOpen && (
-        <div className="share-panel" id="share-panel" role="dialog" aria-label="分享試算">
+        <div className="share-panel" id="share-panel" role="dialog" aria-modal="true" aria-label="分享試算">
           <div className="share-panel-header">
             <strong>選擇要分享的內容</strong>
             <button type="button" className="share-close-button" onClick={() => setShareOpen(false)}>

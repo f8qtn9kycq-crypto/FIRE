@@ -10,7 +10,7 @@ function RiskBar({ label, val }) {
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
         <span style={{ fontSize: 16, color: "#9B9890" }}>{label}</span>
-        <span style={{ fontSize: 15, fontWeight: 700, color }}>{level}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color }}>{level}・{Math.round(val)}/100</span>
       </div>
       <div style={{ height: 7, background: "#2E2C28", borderRadius: 99, overflow: "hidden" }}>
         <div style={{ width: `${val}%`, height: "100%", background: color, borderRadius: 99, transition: "width 0.4s" }} />
@@ -48,6 +48,7 @@ export default function Risk({ inp, ready, res, emptyText }) {
       </div>
 
       <SecLabel>風險因素</SecLabel>
+      <div className="risk-explanation">分數越高，代表這項風險對目前計畫的壓力越大；它不是退休成功率。</div>
       <RiskBar label="提領率風險" val={riskScores.withdrawal} />
       <RiskBar label="報酬順序風險" val={riskScores.sequence} />
       <RiskBar label="通膨侵蝕" val={riskScores.inflation} />
@@ -56,12 +57,18 @@ export default function Risk({ inp, ready, res, emptyText }) {
       <Divider />
       <SecLabel>蒙地卡羅模擬（300次）</SecLabel>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 12 }}>
-        <MiniChart data={mcData} color={survFinal >= 90 ? "#4CAF85" : survFinal >= 70 ? "#C8953A" : "#C05050"} height={100} />
+        <MiniChart
+          data={mcData}
+          color={survFinal >= 90 ? "#4CAF85" : survFinal >= 70 ? "#C8953A" : "#C05050"}
+          height={100}
+          startAge={inp.retAge}
+          ariaLabel={`${inp.retAge}歲至${inp.lifeExp}歲的蒙地卡羅存活比例趨勢`}
+        />
         <div style={{ marginTop: 14, fontSize: 16, color: "#9B9890", lineHeight: 1.7 }}>
-          {inp.lifeExp}歲存活機率：{" "}
+          {inp.lifeExp}歲仍有資產（300次模擬）：{" "}
           <strong style={{ color: survFinal >= 90 ? "#4CAF85" : survFinal >= 70 ? "#C8953A" : "#C05050", fontSize: 22 }}>{survFinal}%</strong>
           <br />
-          {survFinal >= 90 ? "在各種市場情境下均高度穩健。" : survFinal >= 70 ? "中等風險，建議將提領率降至3%。" : "高度耗盡風險，請立即降低提領率。"}
+          {survFinal >= 90 ? "在這組假設下多數情境可支撐；不代表零風險或保證結果。" : survFinal >= 70 ? "在這組假設下仍有一定緩衝，可再測試較保守情境。" : "在這組假設下耗盡風險較高，建議調整後再比較。"}
         </div>
       </div>
 

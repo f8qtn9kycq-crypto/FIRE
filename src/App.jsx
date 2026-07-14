@@ -17,7 +17,6 @@ import {
   parseInputsFromSearch,
   serializeInputsToSearch,
 } from "./utils/fireEngine";
-import { fmt } from "./utils/formatters";
 
 function getPlanStory(res) {
   if (!res) return { status: "先填核心數字", tone: "neutral", success: null, achievementRate: null };
@@ -116,20 +115,22 @@ export default function App() {
       <div className="app-header">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>{t.headerKicker}</div>
+            <div style={{ fontSize: 11, color: "#C8A96E", textTransform: "uppercase", marginBottom: 3 }}>{t.headerKicker}</div>
             <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.15 }}>{t.title}</div>
           </div>
           <div className="header-actions">
             <PlanActions onReset={resetInputs} />
-            <button type="button" onClick={() => setActivePage("faq")}>
-              FAQ
+            <button type="button" className="header-action-button" aria-label="常見問題" title="常見問題" onClick={() => setActivePage("faq")}>
+              <span className="header-action-icon" aria-hidden="true">?</span>
+              <span className="header-action-label">FAQ</span>
             </button>
-            <button type="button" onClick={() => setActivePage("guide")}>
-              公式
+            <button type="button" className="header-action-button" aria-label="計算公式" title="計算公式" onClick={() => setActivePage("guide")}>
+              <span className="header-action-icon" aria-hidden="true">ƒx</span>
+              <span className="header-action-label">公式</span>
             </button>
           </div>
         </div>
-        <div style={{ fontSize: 11, color: "#3E3C38", marginTop: 4 }}>{t.subtitle}</div>
+        <div style={{ fontSize: 12, color: "#8F8A80", marginTop: 4 }}>{t.subtitle}</div>
       </div>
 
       <div className="tab-bar">
@@ -143,7 +144,7 @@ export default function App() {
               padding: "13px 4px",
               fontSize: 16,
               fontWeight: tab === i ? 700 : 400,
-              color: tab === i ? "#C8A96E" : "#4A4844",
+              color: tab === i ? "#C8A96E" : "#9B9890",
               background: "none",
               border: "none",
               borderBottom: tab === i ? "2px solid #C8A96E" : "2px solid transparent",
@@ -158,10 +159,9 @@ export default function App() {
       <div className="app-content">{panels[tab]}</div>
       <div className={`sticky-summary ${ready && res ? "is-ready" : ""}`}>
         <div>
-          <div className={`sticky-status ${story.tone}`}>{retirementLabel}</div>
+          <div className={`sticky-status ${story.tone}`}>{story.tone === "neutral" ? retirementLabel : story.status}</div>
           <div className="sticky-metrics">
-            {story.achievementRate === null ? "填完核心數字即可試算" : `${story.achievementRate}% 達標`}
-            {res ? <span>目前資產：{fmt(res.savedRaw, res.currency)}</span> : null}
+            {story.achievementRate === null ? "填完核心數字即可試算" : `退休時達標率：${story.achievementRate}% · ${retirementLabel}`}
           </div>
         </div>
         <button type="button" onClick={showDetails} disabled={!ready || !res}>

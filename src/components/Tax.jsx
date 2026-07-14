@@ -9,6 +9,9 @@ export default function Tax({ inp, ready, res, emptyText }) {
 
   return (
     <div>
+      <div className="tax-assumption-note">
+        稅務頁使用你輸入的資本利得稅率作為模型假設，不代表台灣的個人稅務結論；海外資產、股利與租金收入可能有不同規則。
+      </div>
       <div className="tax-grid" style={{ gap: 8 }}>
         <Card label="資本利得稅" value={`${inp.cgTax}%`} color="warn" />
         <Card label="年稅務損耗" value={fmt(taxDrag, currency)} sub="需額外提領" />
