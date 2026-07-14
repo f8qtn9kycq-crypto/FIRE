@@ -23,6 +23,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
   issues: read
   pull-requests: read
   # This does not grant Projects V2 access. PROJECTS_TOKEN is still required.
@@ -32,6 +33,7 @@ jobs:
   sync-project:
     name: Add content and sync Project fields
     if: >-
+      (github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]') &&
       (github.event_name != 'issues' || github.event.issue.pull_request == null) &&
       (github.event_name != 'workflow_run' || github.event.workflow_run.pull_requests[0].number != null)
     runs-on: ubuntu-latest
@@ -268,3 +270,55 @@ jobs:
           set_field "AI Owner" "$ai_owner"
           set_field Area "$area"
           echo "Project automation completed for $content_url"
+
+      # Dependabot PR runs cannot read repository secrets. Publish the result
+      # from a privileged event against the original PR head instead.
+      - name: Publish current-head Project check
+        if: >-
+          always() &&
+          (github.event_name == 'workflow_run' ||
+           (github.event_name == 'workflow_dispatch' && inputs.target_type == 'pull_request'))
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_WORKFLOW_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          INPUT_TARGET_NUMBER: ${{ inputs.target_number }}
+          JOB_STATUS: ${{ job.status }}
+          WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            target_number="$EVENT_WORKFLOW_PR_NUMBER"
+          else
+            target_number="$INPUT_TARGET_NUMBER"
+          fi
+
+          if ! [[ "$target_number" =~ ^[0-9]+$ ]]; then
+            echo "::error::A pull request number is required to publish the Project check."
+            exit 1
+          fi
+
+          content_json="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$target_number")"
+          head_sha="$(jq -r '.head.sha // ""' <<<"$content_json")"
+          if [[ -z "$head_sha" ]]; then
+            echo "::error::Unable to resolve the pull request head SHA."
+            exit 1
+          fi
+
+          conclusion="failure"
+          summary="Project synchronization failed. See the workflow run for details."
+          if [[ "$JOB_STATUS" == "success" ]]; then
+            conclusion="success"
+            summary="Project item and fields synchronized successfully."
+          fi
+
+          jq -n \
+            --arg name "Add content and sync Project fields" \
+            --arg head_sha "$head_sha" \
+            --arg conclusion "$conclusion" \
+            --arg details_url "$WORKFLOW_RUN_URL" \
+            --arg summary "$summary" \
+            '{name: $name, head_sha: $head_sha, status: "completed", conclusion: $conclusion, details_url: $details_url, output: {title: $name, summary: $summary}}' \
+            | gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" --input - >/dev/null
