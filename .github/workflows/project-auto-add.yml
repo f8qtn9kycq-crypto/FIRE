@@ -43,6 +43,9 @@ jobs:
       PROJECT_NUMBER: "4"
       DEFAULT_ISSUE_STATUS: Backlog
       DEFAULT_AI_OWNER: Codex
+      DEFAULT_DEPENDABOT_PRIORITY: P2
+      DEFAULT_DEPENDABOT_RISK_TIER: Tier 1
+      DEFAULT_DEPENDABOT_AREA: Workflow
       GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
     steps:
       - name: Verify PROJECTS_TOKEN is set
@@ -106,6 +109,7 @@ jobs:
           content_state="$(jq -r '.state // ""' <<<"$content_json")"
           content_state_reason="$(jq -r '.state_reason // ""' <<<"$content_json")"
           content_merged="$(jq -r '.merged // false' <<<"$content_json")"
+          content_author="$(jq -r '.user.login // ""' <<<"$content_json")"
           labels="$(jq -r '[.labels[]?.name] | join(" ")' <<<"$content_json")"
 
           case "$PROJECT_OWNER_TYPE" in
@@ -228,6 +232,12 @@ jobs:
           [[ "$risk_tier" =~ ^Tier\ [0-3]$ ]] || risk_tier="$(printf '%s\n' "$content_title" "$content_body" | grep -Eio 'Tier[[:space:]]*[0-3]' | sed -E 's/[[:space:]]+/ /' | head -n 1 || true)"
           [[ "$ai_owner" =~ ^(Codex|Claude|ChatGPT|Gemini)$ ]] || ai_owner="$DEFAULT_AI_OWNER"
           [[ "$area" =~ ^(Safety|i18n|Progress|UX|Workflow)$ ]] || area=""
+
+          if [[ "$content_author" == "dependabot[bot]" ]]; then
+            [[ "$priority" =~ ^P[012]$ ]] || priority="$DEFAULT_DEPENDABOT_PRIORITY"
+            [[ "$risk_tier" =~ ^Tier\ [0-3]$ ]] || risk_tier="$DEFAULT_DEPENDABOT_RISK_TIER"
+            [[ "$area" =~ ^(Safety|i18n|Progress|UX|Workflow)$ ]] || area="$DEFAULT_DEPENDABOT_AREA"
+          fi
 
           if [[ "$target_type" == "issue" ]]; then
             if [[ "$content_state" == "open" ]]; then
