@@ -25,7 +25,9 @@ const ICON_PATHS = {
   calculatorBack: (
     <>
       <circle cx="12" cy="12" r="8.5" />
-      <path d="M15.5 12h-7m0 0 3-3m-3 3 3 3" />
+      <g transform="translate(12 12) scale(1.2) translate(-12 -12)">
+        <path d="M15.5 12h-7m0 0 3-3m-3 3 3 3" />
+      </g>
     </>
   ),
 };
