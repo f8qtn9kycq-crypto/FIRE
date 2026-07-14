@@ -308,6 +308,14 @@ select:focus-visible {
   margin-bottom: 14px;
 }
 
+.secondary-nav-button.icon-only-button {
+  position: relative;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #c8a96e;
+}
+
 .summary-grid,
 .age-grid,
 money-grid,
