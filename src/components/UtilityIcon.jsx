@@ -23,11 +23,10 @@ const ICON_PATHS = {
     </>
   ),
   calculatorBack: (
-    <g transform="translate(12 12) scale(1.08) translate(-12 -12)">
-      <rect x="10" y="3.5" width="10" height="17" rx="2" />
-      <path d="M13 7h4m-4 4h1m3 0h1m-5 3h1m3 0h1m-5 3h1m3 0h1" />
-      <path d="M3.5 12h6m-6 0 3-3m-3 3 3 3" />
-    </g>
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M15.5 12h-7m0 0 3-3m-3 3 3 3" />
+    </>
   ),
 };
 
