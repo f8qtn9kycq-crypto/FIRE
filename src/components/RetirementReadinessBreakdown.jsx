@@ -29,6 +29,44 @@ function Milestones({ breakdown, currency }) {
   );
 }
 
+function AssetSourceBreakdown({ assetBreakdown, currency }) {
+  if (!assetBreakdown) return null;
+
+  const sources = [
+    { label: "現金", value: assetBreakdown.cashAtRetirement },
+    { label: "初始投資本金", value: assetBreakdown.startingInvestmentPrincipal },
+    {
+      label: `退休前累積投入（${assetBreakdown.contributionPeriods} 次）`,
+      value: assetBreakdown.cumulativeContributions,
+    },
+    {
+      label: "投資成長",
+      value: assetBreakdown.projectedInvestmentGrowth,
+      tone: assetBreakdown.projectedInvestmentGrowth < 0 ? "bad" : "good",
+    },
+  ];
+
+  return (
+    <div className="readiness-section asset-source-breakdown">
+      <h4>退休時資產怎麼來的？</h4>
+      <p>以下是退休時的名目金額拆解，各項合計等於退休時投資組合。</p>
+      <div className="asset-source-list">
+        {sources.map((source) => (
+          <div key={source.label} className={source.tone || ""}>
+            <span>{source.label}</span>
+            <strong>{fmt(source.value, currency)}</strong>
+          </div>
+        ))}
+        <div className="asset-source-total">
+          <span>退休時投資組合</span>
+          <strong>{fmt(assetBreakdown.total, currency)}</strong>
+        </div>
+      </div>
+      <small>投資成長依目前退休前年報酬率假設推估，可能為負值，不是保證結果。</small>
+    </div>
+  );
+}
+
 function RiskSummary({ breakdown, inp }) {
   const mcTone = breakdown.mcSuccess === null ? "neutral" : breakdown.mcSuccess >= 85 ? "good" : breakdown.mcSuccess >= 65 ? "warn" : "bad";
 
@@ -85,6 +123,7 @@ export default function RetirementReadinessBreakdown({ inp, res }) {
         <MetricCard label="稅前可提領額" value={`${fmt(breakdown.grossWithdrawal, currency)}/年`} sub={`SWR ${inp.swr}%`} />
       </div>
 
+      <AssetSourceBreakdown assetBreakdown={res.retirementAssetBreakdown} currency={currency} />
       <Milestones breakdown={breakdown} currency={currency} />
       <RiskSummary breakdown={breakdown} inp={inp} />
     </section>

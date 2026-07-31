@@ -1,6 +1,7 @@
 import { runMC } from "./monteCarlo";
 import { buildScenarioResults, runBearScenario } from "./scenarios";
 import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters";
+import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown";
 import {
   DEFAULT_PLAN_END_AGE as VALIDATION_DEFAULT_PLAN_END_AGE,
   SUPPORT_MAX_AGE as VALIDATION_SUPPORT_MAX_AGE,
@@ -227,11 +228,20 @@ export function calculateResults(inp) {
   const retirementExpenses = expenses * Math.pow(1 + rInf, yToRet);
 
   let investmentsAtRet = investments;
+  let contributionPeriods = 0;
   for (let y = 0; y < yToRet; y++) {
     investmentsAtRet = investmentsAtRet * (1 + rPre) + annualContrib;
+    contributionPeriods += 1;
   }
 
   const portAtRet = cash + investmentsAtRet;
+  const retirementAssetBreakdown = buildRetirementAssetBreakdown({
+    cash,
+    initialInvestments: investments,
+    annualContribution: annualContrib,
+    contributionPeriods,
+    investmentsAtRetirement: investmentsAtRet,
+  });
 
   const currentFireTarget = expenses / (swr / 100);
   const fireTarget = retirementExpenses / (swr / 100);
@@ -281,6 +291,7 @@ export function calculateResults(inp) {
     cashRaw: cash,
     investmentsRaw: investments,
     investmentsAtRet,
+    retirementAssetBreakdown,
     savedRaw: saved,
     expensesRaw: expenses,
     retirementExpensesRaw: retirementExpenses,
