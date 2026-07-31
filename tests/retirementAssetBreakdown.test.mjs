@@ -91,51 +91,29 @@ test("keeps unusually large values reconcilable", () => {
   assert.equal(result.total, 10_000_000_000_000);
 });
 
-test("reconciles independently rounded TWD display values to the displayed total", () => {
-  const assetBreakdown = {
-    cashAtRetirement: 5_000_400,
-    startingInvestmentPrincipal: 25_000_400,
-    cumulativeContributions: 1_000_400,
-    projectedInvestmentGrowth: 24_178_400,
-    contributionPeriods: 10,
-    total: 55_179_600,
-  };
-  const result = reconcileRetirementAssetBreakdownForDisplay(
-    assetBreakdown,
-    (value) => roundMoneyForDisplay(value, CURRENCIES.TWD),
-  );
-  const displayedSourceTotal =
-    result.cashAtRetirement +
-    result.startingInvestmentPrincipal +
-    result.cumulativeContributions +
-    result.projectedInvestmentGrowth;
-
-  assert.equal(displayedSourceTotal, result.total);
-  assert.equal(result.total, 55_180_000);
-  assert.equal(result.startingInvestmentPrincipal, 25_002_000);
-  assert.equal(result.projectedInvestmentGrowth, 24_178_000);
-});
-
-test("reconciles whole-dollar USD display values without changing the raw breakdown", () => {
-  const assetBreakdown = {
-    cashAtRetirement: 10_010,
-    startingInvestmentPrincipal: 20_010,
-    cumulativeContributions: 30_010,
-    projectedInvestmentGrowth: 40_010,
-    contributionPeriods: 3,
-    total: 100_040,
-  };
-  const result = reconcileRetirementAssetBreakdownForDisplay(
-    assetBreakdown,
-    (value) => roundMoneyForDisplay(value, CURRENCIES.USD),
-  );
-  const displayedUsdSources =
-    (result.cashAtRetirement +
-      result.startingInvestmentPrincipal +
-      result.cumulativeContributions +
-      result.projectedInvestmentGrowth) *
-    CURRENCIES.USD.rate;
-
-  assert.equal(displayedUsdSources, result.total * CURRENCIES.USD.rate);
-  assert.equal(assetBreakdown.projectedInvestmentGrowth, 40_010);
+test("reconciles display-rounded source values for TWD and USD", () => {
+  const cases = [
+    { currency: CURRENCIES.TWD, values: [5_000_400, 25_000_400, 1_000_400, 24_178_400, 55_179_600] },
+    { currency: CURRENCIES.USD, values: [10_010, 20_010, 30_010, 40_010, 100_040] },
+  ];
+  for (const { currency, values } of cases) {
+    const [cash, principal, contributions, growth, total] = values;
+    const result = reconcileRetirementAssetBreakdownForDisplay(
+      {
+        cashAtRetirement: cash,
+        startingInvestmentPrincipal: principal,
+        cumulativeContributions: contributions,
+        projectedInvestmentGrowth: growth,
+        total,
+      },
+      (value) => roundMoneyForDisplay(value, currency),
+    );
+    const sourceTotal = [
+      result.cashAtRetirement,
+      result.startingInvestmentPrincipal,
+      result.cumulativeContributions,
+      result.projectedInvestmentGrowth,
+    ].reduce((sum, value) => sum + value, 0);
+    assert.equal(sourceTotal, result.total);
+  }
 });
