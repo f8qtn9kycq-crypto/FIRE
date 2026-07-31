@@ -35,6 +35,88 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+.assumption-guide {
+  margin: -4px 0 16px;
+  border: 1px solid #38342c;
+  border-radius: 8px;
+  background: #151410;
+}
+
+.assumption-guide > summary {
+  min-height: 44px;
+  padding: 11px 12px;
+  color: #c8a96e;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.assumption-guide > summary span {
+  float: right;
+  margin-left: 8px;
+  color: #9b9890;
+}
+
+.assumption-guide-body {
+  padding: 0 12px 12px;
+}
+
+.assumption-guide-body > p {
+  margin: 0 0 10px;
+  color: #c9c5bd;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.assumption-scenarios {
+  display: grid;
+  gap: 8px;
+}
+
+.assumption-scenario {
+  padding: 10px;
+  border: 1px solid #2e2c28;
+  border-radius: 7px;
+  background: #0f0e0c;
+}
+
+.assumption-scenario.is-current {
+  border-color: #806c45;
+  background: #1d1a13;
+}
+
+.assumption-scenario-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e8e4dc;
+  font-size: 13px;
+}
+
+.assumption-scenario-heading span {
+  color: #c8a96e;
+}
+
+.assumption-scenario-heading small {
+  margin-left: auto;
+  color: #4caf85;
+  font-size: 12px;
+}
+
+.assumption-scenario p {
+  margin: 5px 0 0;
+  color: #aaa69e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.assumption-guide-body p.assumption-disclaimer {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid #2e2c28;
+  color: #c8953a;
+}
+
 .app-shell,
 .guide-shell {
   width: min(100%, 1120px);
