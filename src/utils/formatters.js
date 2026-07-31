@@ -23,6 +23,16 @@ export function fmt(n, currency = CURRENCIES.TWD) {
   return SYM + (v / 1e4).toFixed(1) + "萬";
 }
 
+export function roundMoneyForDisplay(n, currency = CURRENCIES.TWD) {
+  const value = Number.isFinite(n) ? n : 0;
+
+  if (currency.code !== "TWD") {
+    return Math.round(value * currency.rate) / currency.rate;
+  }
+
+  return Math.round(value / 1e3) * 1e3;
+}
+
 export const moneyWanToTwd = (w, currency = CURRENCIES.TWD) =>
   ((parseFloat(w) || 0) * 1e4) / currency.rate;
 

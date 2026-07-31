@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildRetirementAssetBreakdown } from "../src/utils/retirementAssetBreakdown.js";
+import { CURRENCIES, roundMoneyForDisplay } from "../src/utils/formatters.js";
+import {
+  buildRetirementAssetBreakdown,
+  reconcileRetirementAssetBreakdownForDisplay,
+} from "../src/utils/retirementAssetBreakdown.js";
 
 test("breaks a retirement portfolio into reconciling asset sources", () => {
   const result = buildRetirementAssetBreakdown({
@@ -85,4 +89,53 @@ test("keeps unusually large values reconcilable", () => {
 
   assert.equal(sourceTotal, result.total);
   assert.equal(result.total, 10_000_000_000_000);
+});
+
+test("reconciles independently rounded TWD display values to the displayed total", () => {
+  const assetBreakdown = {
+    cashAtRetirement: 5_000_400,
+    startingInvestmentPrincipal: 25_000_400,
+    cumulativeContributions: 1_000_400,
+    projectedInvestmentGrowth: 24_178_400,
+    contributionPeriods: 10,
+    total: 55_179_600,
+  };
+  const result = reconcileRetirementAssetBreakdownForDisplay(
+    assetBreakdown,
+    (value) => roundMoneyForDisplay(value, CURRENCIES.TWD),
+  );
+  const displayedSourceTotal =
+    result.cashAtRetirement +
+    result.startingInvestmentPrincipal +
+    result.cumulativeContributions +
+    result.projectedInvestmentGrowth;
+
+  assert.equal(displayedSourceTotal, result.total);
+  assert.equal(result.total, 55_180_000);
+  assert.equal(result.startingInvestmentPrincipal, 25_002_000);
+  assert.equal(result.projectedInvestmentGrowth, 24_178_000);
+});
+
+test("reconciles whole-dollar USD display values without changing the raw breakdown", () => {
+  const assetBreakdown = {
+    cashAtRetirement: 10_010,
+    startingInvestmentPrincipal: 20_010,
+    cumulativeContributions: 30_010,
+    projectedInvestmentGrowth: 40_010,
+    contributionPeriods: 3,
+    total: 100_040,
+  };
+  const result = reconcileRetirementAssetBreakdownForDisplay(
+    assetBreakdown,
+    (value) => roundMoneyForDisplay(value, CURRENCIES.USD),
+  );
+  const displayedUsdSources =
+    (result.cashAtRetirement +
+      result.startingInvestmentPrincipal +
+      result.cumulativeContributions +
+      result.projectedInvestmentGrowth) *
+    CURRENCIES.USD.rate;
+
+  assert.equal(displayedUsdSources, result.total * CURRENCIES.USD.rate);
+  assert.equal(assetBreakdown.projectedInvestmentGrowth, 40_010);
 });

@@ -27,3 +27,28 @@ export function buildRetirementAssetBreakdown({
     total: cashAtRetirement + projectedInvestments,
   };
 }
+
+export function reconcileRetirementAssetBreakdownForDisplay(assetBreakdown, roundMoney) {
+  const sourceKeys = [
+    "cashAtRetirement",
+    "startingInvestmentPrincipal",
+    "cumulativeContributions",
+    "projectedInvestmentGrowth",
+  ];
+  const rounded = Object.fromEntries(
+    sourceKeys.map((key) => [key, roundMoney(assetBreakdown[key])]),
+  );
+  const roundedTotal = roundMoney(assetBreakdown.total);
+  const roundedSourceTotal = sourceKeys.reduce((sum, key) => sum + rounded[key], 0);
+  const adjustmentKey = sourceKeys.reduce((largestKey, key) =>
+    Math.abs(assetBreakdown[key]) > Math.abs(assetBreakdown[largestKey]) ? key : largestKey,
+  );
+
+  rounded[adjustmentKey] += roundedTotal - roundedSourceTotal;
+
+  return {
+    ...assetBreakdown,
+    ...rounded,
+    total: roundedTotal,
+  };
+}

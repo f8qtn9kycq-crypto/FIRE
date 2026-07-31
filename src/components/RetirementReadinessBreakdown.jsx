@@ -1,5 +1,6 @@
 import { buildReadinessBreakdown } from "../utils/readinessBreakdown";
-import { fmt } from "../utils/formatters";
+import { fmt, roundMoneyForDisplay } from "../utils/formatters";
+import { reconcileRetirementAssetBreakdownForDisplay } from "../utils/retirementAssetBreakdown";
 
 function MetricCard({ label, value, tone = "neutral", sub }) {
   return (
@@ -32,16 +33,21 @@ function Milestones({ breakdown, currency }) {
 function AssetSourceBreakdown({ assetBreakdown, currency }) {
   if (!assetBreakdown) return null;
 
+  const displayBreakdown = reconcileRetirementAssetBreakdownForDisplay(
+    assetBreakdown,
+    (value) => roundMoneyForDisplay(value, currency),
+  );
+
   const sources = [
-    { label: "現金", value: assetBreakdown.cashAtRetirement },
-    { label: "初始投資本金", value: assetBreakdown.startingInvestmentPrincipal },
+    { label: "現金", value: displayBreakdown.cashAtRetirement },
+    { label: "初始投資本金", value: displayBreakdown.startingInvestmentPrincipal },
     {
       label: `退休前累積投入（${assetBreakdown.contributionPeriods} 次）`,
-      value: assetBreakdown.cumulativeContributions,
+      value: displayBreakdown.cumulativeContributions,
     },
     {
       label: "投資成長",
-      value: assetBreakdown.projectedInvestmentGrowth,
+      value: displayBreakdown.projectedInvestmentGrowth,
       tone: assetBreakdown.projectedInvestmentGrowth < 0 ? "bad" : "good",
     },
   ];
@@ -59,10 +65,12 @@ function AssetSourceBreakdown({ assetBreakdown, currency }) {
         ))}
         <div className="asset-source-total">
           <span>退休時投資組合</span>
-          <strong>{fmt(assetBreakdown.total, currency)}</strong>
+          <strong>{fmt(displayBreakdown.total, currency)}</strong>
         </div>
       </div>
-      <small>投資成長依目前退休前年報酬率假設推估，可能為負值，不是保證結果。</small>
+      <small>
+        投資成長依目前退休前年報酬率假設推估，可能為負值，不是保證結果。顯示金額的四捨五入差額會併入最大項目，確保合計一致。
+      </small>
     </div>
   );
 }
