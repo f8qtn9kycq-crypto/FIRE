@@ -48,6 +48,26 @@ test("returns an explicit not-found result after checking the full range", () =>
   });
 });
 
+test("requires the readiness predicate to return the boolean true", () => {
+  const checked = [];
+  const result = findEarliestRetirementAge({
+    currentAge: 65,
+    maxRetirementAge: 67,
+    isReadyAtAge: (age) => {
+      checked.push(age);
+      return 1;
+    },
+  });
+
+  assert.deepEqual(result, {
+    status: "not_found",
+    age: null,
+    checkedAges: 3,
+    reason: "no-qualifying-age",
+  });
+  assert.deepEqual(checked, [65, 66, 67]);
+});
+
 test("normalizes fractional boundaries to candidate integer ages", () => {
   const checked = [];
   const result = findEarliestRetirementAge({
