@@ -100,6 +100,10 @@ test("historical benchmarks preserve values while distinguishing sources and lim
   assert.match(beforeRetirement, /13\.58%/);
   assert.match(beforeRetirement, /不含股息/);
   assert.match(beforeRetirement, /不能直接當成你的預期報酬/);
+  assert.match(beforeRetirement, /單一年度報酬/);
+  assert.match(beforeRetirement, /不是 0050 成立以來年化報酬/);
+  assert.match(beforeRetirement, /不是成立以來年化報酬/);
+  assert.match(beforeRetirement, /費用與追蹤差異/);
 
   const afterRetirement = ASSUMPTION_GUIDANCE.retPost.benchmark.body;
   assert.match(afterRetirement, /同時提領生活費/);
