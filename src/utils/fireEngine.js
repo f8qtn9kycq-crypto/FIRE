@@ -1,14 +1,19 @@
-import { runMC } from "./monteCarlo";
-import { buildScenarioResults, runBearScenario } from "./scenarios";
-import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters";
-import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown";
+import { runMC } from "./monteCarlo.js";
+import { buildScenarioResults, runBearScenario } from "./scenarios.js";
+import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters.js";
+import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown.js";
+import {
+  calculateRetirementReadiness,
+  defaultCgTaxForCurrency,
+  findEarliestRetirementAgeForPlan,
+} from "./retirementReadiness.js";
 import {
   DEFAULT_PLAN_END_AGE as VALIDATION_DEFAULT_PLAN_END_AGE,
   SUPPORT_MAX_AGE as VALIDATION_SUPPORT_MAX_AGE,
   generateValidationSummary,
   suggestAutoCorrection,
   validateAndAssess,
-} from "./validateRetirementAssumptions";
+} from "./validateRetirementAssumptions.js";
 
 export const DEFAULT_PLAN_END_AGE = VALIDATION_DEFAULT_PLAN_END_AGE;
 export const SUPPORT_MAX_AGE = VALIDATION_SUPPORT_MAX_AGE;
@@ -31,7 +36,7 @@ export const initialInputs = {
   cgTax: 0,
 };
 
-export const defaultCgTaxForCurrency = (currencyCode) => (currencyCode === "TWD" ? 0 : 20);
+export { defaultCgTaxForCurrency };
 
 const INPUT_NUMBER_FIELDS = [
   "age",
@@ -209,32 +214,32 @@ export function calculateResults(inp) {
   if (validation.hasErrors) return null;
 
   const validationAlert = generateValidationSummary(validation);
-  const { age, retAge, retPre, retPost, swr, inf } = inp;
+  const { age, retAge, retPost, swr, inf } = inp;
   const lifeExp = Math.max(inp.lifeExp || DEFAULT_PLAN_END_AGE, retAge + 1);
-  const currency = CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
-  const cgTax = Number.isFinite(inp.cgTax) ? inp.cgTax : defaultCgTaxForCurrency(currency.code);
-  const cash = moneyWanToTwd(inp.cash, currency);
-  const investments = moneyWanToTwd(inp.investments, currency);
-  const saved = cash + investments;
-  const expenses = moneyWanToTwd(inp.expenses, currency);
-  const annualContrib = moneyWanToTwd(inp.annualContrib, currency);
-
-  const rPre = retPre / 100;
+  const calculationInputs = lifeExp === inp.lifeExp ? inp : { ...inp, lifeExp };
+  const readiness = calculateRetirementReadiness(calculationInputs, retAge);
+  if (!readiness) return null;
+  const {
+    annualContrib,
+    cash,
+    contributionPeriods,
+    currency,
+    currentAlreadyFIRE,
+    currentFireTarget,
+    expenses,
+    fireReadyAtRet,
+    fireTarget,
+    investments,
+    investmentsAtRet,
+    portAtRet,
+    retirementExpenses,
+    rCG,
+    saved,
+    yToRet,
+  } = readiness;
   const rPost = retPost / 100;
   const rInf = inf / 100;
-  const rCG = cgTax / 100;
-  const yToRet = Math.max(0, retAge - age);
   const retYears = Math.max(1, lifeExp - retAge);
-  const retirementExpenses = expenses * Math.pow(1 + rInf, yToRet);
-
-  let investmentsAtRet = investments;
-  let contributionPeriods = 0;
-  for (let y = 0; y < yToRet; y++) {
-    investmentsAtRet = investmentsAtRet * (1 + rPre) + annualContrib;
-    contributionPeriods += 1;
-  }
-
-  const portAtRet = cash + investmentsAtRet;
   const retirementAssetBreakdown = buildRetirementAssetBreakdown({
     cash,
     initialInvestments: investments,
@@ -243,8 +248,6 @@ export function calculateResults(inp) {
     investmentsAtRetirement: investmentsAtRet,
   });
 
-  const currentFireTarget = expenses / (swr / 100);
-  const fireTarget = retirementExpenses / (swr / 100);
   const baseData = runProjection(portAtRet, rPost, rInf, rCG, retirementExpenses, retYears);
   const bearData = runBearScenario(portAtRet, rPost, rInf, rCG, retirementExpenses, retYears);
   const supportYears = Math.max(1, SUPPORT_MAX_AGE - retAge);
@@ -268,8 +271,6 @@ export function calculateResults(inp) {
   const grossAtRet = Math.round(retirementExpenses / (1 - rCG));
   const taxDrag = grossAtRet - retirementExpenses;
   const lifetimeTax = Math.round(taxDrag * retYears * Math.pow(1 + rInf, retYears / 2));
-  const currentAlreadyFIRE = saved >= currentFireTarget;
-  const fireReadyAtRet = portAtRet >= fireTarget;
   const assessmentPortfolio = portAtRet;
 
   return {
@@ -303,6 +304,7 @@ export function calculateResults(inp) {
     currentAlreadyFIRE,
     fireReadyAtRet,
     alreadyFIRE: fireReadyAtRet,
+    earliestRetirementAge: findEarliestRetirementAgeForPlan(calculationInputs),
     validationAlert,
     lifeExpectancyRisk: validation.lifeExpectancyRisks,
     scenarioResults: buildScenarioResults({

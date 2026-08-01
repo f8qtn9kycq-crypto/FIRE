@@ -528,6 +528,43 @@ money-grid,
   text-align: right;
 }
 
+.earliest-retirement-story {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid #2e2c28;
+  border-radius: 8px;
+  background: #0f0e0c;
+}
+
+.earliest-retirement-story.good {
+  border-color: #1d5c3a;
+  background: #102019;
+}
+
+.earliest-retirement-story.warn {
+  border-color: #5c3a1d;
+  background: #21180f;
+}
+
+.earliest-retirement-story > span {
+  color: #c8a96e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.earliest-retirement-story h3 {
+  margin: 0;
+  color: #e8e4dc;
+  font-size: 19px;
+  line-height: 1.4;
+}
+
+.phase-summary-card .earliest-retirement-story p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .phase-summary-list {
   display: grid;
   gap: 8px;
