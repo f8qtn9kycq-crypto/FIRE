@@ -1,19 +1,19 @@
-import { runMC } from "./monteCarlo";
-import { buildScenarioResults, runBearScenario } from "./scenarios";
-import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters";
-import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown";
+import { runMC } from "./monteCarlo.js";
+import { buildScenarioResults, runBearScenario } from "./scenarios.js";
+import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters.js";
+import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown.js";
 import {
   calculateRetirementReadiness,
   defaultCgTaxForCurrency,
   findEarliestRetirementAgeForPlan,
-} from "./retirementReadiness";
+} from "./retirementReadiness.js";
 import {
   DEFAULT_PLAN_END_AGE as VALIDATION_DEFAULT_PLAN_END_AGE,
   SUPPORT_MAX_AGE as VALIDATION_SUPPORT_MAX_AGE,
   generateValidationSummary,
   suggestAutoCorrection,
   validateAndAssess,
-} from "./validateRetirementAssumptions";
+} from "./validateRetirementAssumptions.js";
 
 export const DEFAULT_PLAN_END_AGE = VALIDATION_DEFAULT_PLAN_END_AGE;
 export const SUPPORT_MAX_AGE = VALIDATION_SUPPORT_MAX_AGE;
@@ -216,7 +216,8 @@ export function calculateResults(inp) {
   const validationAlert = generateValidationSummary(validation);
   const { age, retAge, retPost, swr, inf } = inp;
   const lifeExp = Math.max(inp.lifeExp || DEFAULT_PLAN_END_AGE, retAge + 1);
-  const readiness = calculateRetirementReadiness(inp, retAge);
+  const calculationInputs = lifeExp === inp.lifeExp ? inp : { ...inp, lifeExp };
+  const readiness = calculateRetirementReadiness(calculationInputs, retAge);
   if (!readiness) return null;
   const {
     annualContrib,
@@ -303,7 +304,7 @@ export function calculateResults(inp) {
     currentAlreadyFIRE,
     fireReadyAtRet,
     alreadyFIRE: fireReadyAtRet,
-    earliestRetirementAge: findEarliestRetirementAgeForPlan(inp),
+    earliestRetirementAge: findEarliestRetirementAgeForPlan(calculationInputs),
     validationAlert,
     lifeExpectancyRisk: validation.lifeExpectancyRisks,
     scenarioResults: buildScenarioResults({

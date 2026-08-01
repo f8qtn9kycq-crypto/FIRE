@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { calculateResults } from "../src/utils/fireEngine.js";
 import {
   calculateRetirementReadiness,
   findEarliestRetirementAgeForPlan,
@@ -27,6 +28,14 @@ test("uses the current readiness formula for a candidate retirement age", () => 
   assert.equal(result.fireTarget, 25_000_000);
   assert.equal(result.fireReadyAtRet, true);
   assert.equal(result.contributionPeriods, 24);
+});
+
+test("preserves the existing default plan-end fallback", () => {
+  const result = calculateResults({ ...basePlan, lifeExp: 0 });
+  assert.equal(result.portAtRet, 26_000_000);
+  assert.equal(result.fireTarget, 25_000_000);
+  assert.equal(result.retirementAssetBreakdown.contributionPeriods, 25);
+  assert.equal(result.earliestRetirementAge.maxRetirementAge, 94);
 });
 
 test("preserves whole contribution-period counting for fractional ages", () => {
