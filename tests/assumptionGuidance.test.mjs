@@ -4,6 +4,7 @@ import {
   ASSUMPTION_DISCLAIMER,
   ASSUMPTION_GUIDANCE,
   getAssumptionGuidance,
+  getAssumptionPresets,
   getAssumptionScenarioId,
 } from "../src/utils/assumptionGuidance.js";
 
@@ -28,6 +29,16 @@ test("every catalog value classifies back to its own scenario", () => {
       assert.equal(getAssumptionScenarioId(key, scenario.value), scenario.id);
     }
   }
+});
+
+test("slider presets share catalog labels and values without duplication", () => {
+  for (const [key, guidance] of Object.entries(ASSUMPTION_GUIDANCE)) {
+    assert.deepEqual(
+      getAssumptionPresets(key),
+      guidance.scenarios.map(({ label, value }) => ({ label, value })),
+    );
+  }
+  assert.deepEqual(getAssumptionPresets("unknown"), []);
 });
 
 test("every assumption includes all three plain-language scenario explanations", () => {
@@ -81,12 +92,15 @@ test("disclaimer states that guidance is not advice and outcomes are not guarant
   assert.match(ASSUMPTION_DISCLAIMER, /不保證/);
 });
 
-test("scenario descriptions avoid advice and guarantee language", () => {
-  const forbiddenClaims = /保證|一定會|必然|建議你|應該買|應該賣|推薦/;
+test("all guidance copy avoids advice and positive guarantee language", () => {
+  const forbiddenClaims = /(?<!不)保證|一定會|必然|建議你|應該買|應該賣|推薦/;
+  const copy = [
+    ASSUMPTION_DISCLAIMER,
+    ...Object.values(ASSUMPTION_GUIDANCE).flatMap((guidance) => [
+      guidance.impact,
+      ...guidance.scenarios.map((scenario) => scenario.description),
+    ]),
+  ];
 
-  for (const guidance of Object.values(ASSUMPTION_GUIDANCE)) {
-    for (const scenario of guidance.scenarios) {
-      assert.doesNotMatch(scenario.description, forbiddenClaims);
-    }
-  }
+  for (const text of copy) assert.doesNotMatch(text, forbiddenClaims);
 });

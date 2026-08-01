@@ -39,6 +39,13 @@ export function getAssumptionGuidance(key) {
   return ASSUMPTION_GUIDANCE[key] || null;
 }
 
+export function getAssumptionPresets(key) {
+  const guidance = getAssumptionGuidance(key);
+  if (!guidance) return [];
+
+  return guidance.scenarios.map(({ label, value }) => ({ label, value }));
+}
+
 export function getAssumptionScenarioId(key, value) {
   const guidance = getAssumptionGuidance(key);
   const numericValue = Number(value);

@@ -1,31 +1,20 @@
 import { useRef, useState } from "react";
 import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
+import { getAssumptionPresets } from "../utils/assumptionGuidance";
 import { DEFAULT_PLAN_END_AGE, getInputCompletion, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
 import AssumptionGuide from "./AssumptionGuide";
 import MobileSummary from "./MobileSummary";
 import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
 const PRESETS = {
-  retPre: [
-    { label: "保守", value: 4 },
-    { label: "中性", value: 7 },
-    { label: "積極", value: 10 },
-  ],
-  retPost: [
-    { label: "保守", value: 3 },
-    { label: "中性", value: 5 },
-    { label: "積極", value: 7 },
-  ],
+  retPre: getAssumptionPresets("retPre"),
+  retPost: getAssumptionPresets("retPost"),
   swr: [
     { label: "保守", value: 3 },
     { label: "平衡", value: 3.5 },
     { label: "積極", value: 4 },
   ],
-  inf: [
-    { label: "低", value: 1.5 },
-    { label: "一般", value: 2.5 },
-    { label: "高", value: 4 },
-  ],
+  inf: getAssumptionPresets("inf"),
 };
 
 function CoreInputProgress({ inp }) {
