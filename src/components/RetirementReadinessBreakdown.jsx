@@ -1,5 +1,9 @@
 import { buildReadinessBreakdown } from "../utils/readinessBreakdown";
-import { fmt } from "../utils/formatters";
+import { fmt, roundMoneyForDisplay } from "../utils/formatters";
+import {
+  getRetirementAssetGrowthTone,
+  reconcileRetirementAssetBreakdownForDisplay,
+} from "../utils/retirementAssetBreakdown";
 
 function MetricCard({ label, value, tone = "neutral", sub }) {
   return (
@@ -25,6 +29,51 @@ function Milestones({ breakdown, currency }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function AssetSourceBreakdown({ assetBreakdown, currency }) {
+  if (!assetBreakdown) return null;
+
+  const displayBreakdown = reconcileRetirementAssetBreakdownForDisplay(
+    assetBreakdown,
+    (value) => roundMoneyForDisplay(value, currency),
+  );
+
+  const sources = [
+    { label: "現金", value: displayBreakdown.cashAtRetirement },
+    { label: "初始投資本金", value: displayBreakdown.startingInvestmentPrincipal },
+    {
+      label: `退休前累積投入（${assetBreakdown.contributionPeriods} 次）`,
+      value: displayBreakdown.cumulativeContributions,
+    },
+    {
+      label: "投資成長",
+      value: displayBreakdown.projectedInvestmentGrowth,
+      tone: getRetirementAssetGrowthTone(displayBreakdown),
+    },
+  ];
+
+  return (
+    <div className="readiness-section asset-source-breakdown">
+      <h4>退休時資產怎麼來的？</h4>
+      <p>以下是退休時的名目金額拆解，各項合計等於退休時投資組合。</p>
+      <div className="asset-source-list">
+        {sources.map((source) => (
+          <div key={source.label} className={source.tone || ""}>
+            <span>{source.label}</span>
+            <strong>{fmt(source.value, currency)}</strong>
+          </div>
+        ))}
+        <div className="asset-source-total">
+          <span>退休時投資組合</span>
+          <strong>{fmt(displayBreakdown.total, currency)}</strong>
+        </div>
+      </div>
+      <small>
+        投資成長依目前退休前年報酬率假設推估，可能為負值，不是保證結果。顯示金額的四捨五入差額會併入最大項目，確保合計一致。
+      </small>
     </div>
   );
 }
@@ -85,6 +134,7 @@ export default function RetirementReadinessBreakdown({ inp, res }) {
         <MetricCard label="稅前可提領額" value={`${fmt(breakdown.grossWithdrawal, currency)}/年`} sub={`SWR ${inp.swr}%`} />
       </div>
 
+      <AssetSourceBreakdown assetBreakdown={res.retirementAssetBreakdown} currency={currency} />
       <Milestones breakdown={breakdown} currency={currency} />
       <RiskSummary breakdown={breakdown} inp={inp} />
     </section>
