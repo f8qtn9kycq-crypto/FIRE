@@ -33,6 +33,19 @@ export default function AssumptionGuide({ assumptionKey, value }) {
             </div>
           ))}
         </div>
+        {guidance.benchmark && (
+          <aside className="assumption-benchmark" aria-label={`${guidance.title}歷史資料參考`}>
+            <strong>歷史資料怎麼看？</strong>
+            <p>{guidance.benchmark.body}</p>
+            <div className="assumption-source-links">
+              {guidance.benchmark.sources.map((source) => (
+                <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
+                  {source.label}
+                </a>
+              ))}
+            </div>
+          </aside>
+        )}
         <p className="assumption-disclaimer">{ASSUMPTION_DISCLAIMER}</p>
       </div>
     </details>
