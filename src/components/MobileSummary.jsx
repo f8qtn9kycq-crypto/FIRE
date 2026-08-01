@@ -1,4 +1,5 @@
 import { fmt } from "../utils/formatters";
+import EarliestRetirementStory from "./EarliestRetirementStory";
 
 export default function MobileSummary({ inp, res, story }) {
   if (!res) {
@@ -28,6 +29,8 @@ export default function MobileSummary({ inp, res, story }) {
         <span>{achievementRate}%</span>
         <strong>退休時達標率</strong>
       </div>
+
+      <EarliestRetirementStory result={res.earliestRetirementAge} />
 
       <div className="phase-summary-list">
         <div>
