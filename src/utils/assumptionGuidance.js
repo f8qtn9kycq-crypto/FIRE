@@ -43,7 +43,9 @@ export function getAssumptionPresets(key) {
   const guidance = getAssumptionGuidance(key);
   if (!guidance) return [];
 
-  return guidance.scenarios.map(({ label, value }) => ({ label, value }));
+  return guidance.scenarios
+    .map(({ label, value }) => ({ label, value }))
+    .sort((left, right) => left.value - right.value);
 }
 
 export function getAssumptionScenarioId(key, value) {

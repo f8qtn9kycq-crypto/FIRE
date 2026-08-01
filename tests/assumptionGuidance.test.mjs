@@ -35,8 +35,13 @@ test("slider presets share catalog labels and values without duplication", () =>
   for (const [key, guidance] of Object.entries(ASSUMPTION_GUIDANCE)) {
     assert.deepEqual(
       getAssumptionPresets(key),
-      guidance.scenarios.map(({ label, value }) => ({ label, value })),
+      guidance.scenarios
+        .map(({ label, value }) => ({ label, value }))
+        .sort((left, right) => left.value - right.value),
     );
+
+    const presetValues = getAssumptionPresets(key).map(({ value }) => value);
+    assert.deepEqual(presetValues, [...presetValues].sort((left, right) => left - right));
   }
   assert.deepEqual(getAssumptionPresets("unknown"), []);
 });
