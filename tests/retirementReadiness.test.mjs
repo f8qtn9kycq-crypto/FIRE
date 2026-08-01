@@ -36,6 +36,11 @@ test("preserves the existing default plan-end fallback", () => {
   assert.equal(result.fireTarget, 25_000_000);
   assert.equal(result.retirementAssetBreakdown.contributionPeriods, 25);
   assert.equal(result.earliestRetirementAge.maxRetirementAge, 94);
+
+  const zeroWithdrawalRate = calculateResults({ ...basePlan, swr: 0 });
+  assert.equal(zeroWithdrawalRate.fireTarget, Number.POSITIVE_INFINITY);
+  assert.equal(zeroWithdrawalRate.fireReadyAtRet, false);
+  assert.equal(zeroWithdrawalRate.earliestRetirementAge.status, "not_found");
 });
 
 test("preserves whole contribution-period counting for fractional ages", () => {

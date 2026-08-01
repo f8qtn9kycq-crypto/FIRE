@@ -24,8 +24,7 @@ function hasValidReadinessInputs(inp, retirementAge) {
     Number.isFinite(inp.lifeExp) &&
     retirementAge < inp.lifeExp &&
     (inp.cash > 0 || inp.investments > 0) &&
-    inp.expenses > 0 &&
-    inp.swr > 0
+    inp.expenses > 0
   );
 }
 
