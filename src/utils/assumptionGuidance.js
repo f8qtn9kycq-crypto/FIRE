@@ -3,7 +3,7 @@ export const ASSUMPTION_GUIDANCE = {
     title: "退休前年報酬率",
     impact: "影響退休前投資與每年投入的複利成長，不會套用在現金儲蓄。",
     benchmark: {
-      body: "歷史尺度（僅供比較）：0050 追蹤 FTSE 臺灣50指數；該含息指數的單年報酬曾從 2022 年 −21.5% 到 2024 年 +49.0%。S&P 500 美元價格指數截至 2026 年 6 月底的近 10 年年化報酬為 13.58%，但不含股息。兩者的市場、幣別、期間、含息口徑與基金成本不同，不能直接當成你的預期報酬。",
+      body: "歷史尺度（僅供比較）：0050 追蹤 FTSE 臺灣50指數；−21.5%（2022）與 +49.0%（2024）是該含息指數的單一年度報酬，不是 0050 成立以來年化報酬。S&P 500 的 13.58% 是截至 2026 年 6 月底、往回 10 年的美元價格年化報酬，不是成立以來年化報酬，也不含股息。0050 實際基金報酬另受費用與追蹤差異影響；兩者的市場、幣別、期間與口徑不同，不能直接當成你的預期報酬。",
       sources: [
         { label: "元大 0050 官方資料", url: "https://www.yuantaetfs.com/product/detail/0050/Basic_information" },
         { label: "FTSE 臺灣50官方資料", url: "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=TW50&openfile=open" },
