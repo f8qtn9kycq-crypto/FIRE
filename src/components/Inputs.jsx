@@ -8,12 +8,12 @@ import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 const PRESETS = {
   retPre: [
     { label: "保守", value: 4 },
-    { label: "平衡", value: 7 },
+    { label: "中性", value: 7 },
     { label: "積極", value: 10 },
   ],
   retPost: [
     { label: "保守", value: 3 },
-    { label: "平衡", value: 5 },
+    { label: "中性", value: 5 },
     { label: "積極", value: 7 },
   ],
   swr: [

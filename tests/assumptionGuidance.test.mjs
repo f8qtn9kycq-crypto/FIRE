@@ -22,6 +22,14 @@ test("guidance preserves the existing scenario values", () => {
   }
 });
 
+test("every catalog value classifies back to its own scenario", () => {
+  for (const [key, guidance] of Object.entries(ASSUMPTION_GUIDANCE)) {
+    for (const scenario of guidance.scenarios) {
+      assert.equal(getAssumptionScenarioId(key, scenario.value), scenario.id);
+    }
+  }
+});
+
 test("every assumption includes all three plain-language scenario explanations", () => {
   for (const guidance of Object.values(ASSUMPTION_GUIDANCE)) {
     assert.deepEqual(guidance.scenarios.map(({ id }) => id), ["conservative", "neutral", "aggressive"]);
@@ -45,6 +53,23 @@ test("inflation treats a higher rate as the conservative planning scenario", () 
   assert.equal(getAssumptionScenarioId("inf", 8), "conservative");
 });
 
+test("classification thresholds handle equal, slightly lower, and slightly higher values", () => {
+  const cases = [
+    { key: "retPre", threshold: 5.5, below: "conservative", equal: "neutral", above: "neutral" },
+    { key: "retPre", threshold: 8.5, below: "neutral", equal: "neutral", above: "aggressive" },
+    { key: "retPost", threshold: 4, below: "conservative", equal: "neutral", above: "neutral" },
+    { key: "retPost", threshold: 6, below: "neutral", equal: "neutral", above: "aggressive" },
+    { key: "inf", threshold: 2, below: "aggressive", equal: "neutral", above: "neutral" },
+    { key: "inf", threshold: 3.25, below: "neutral", equal: "neutral", above: "conservative" },
+  ];
+
+  for (const { key, threshold, below, equal, above } of cases) {
+    assert.equal(getAssumptionScenarioId(key, threshold - 0.01), below);
+    assert.equal(getAssumptionScenarioId(key, threshold), equal);
+    assert.equal(getAssumptionScenarioId(key, threshold + 0.01), above);
+  }
+});
+
 test("invalid guidance requests do not invent an assumption", () => {
   assert.equal(getAssumptionGuidance("unknown"), null);
   assert.equal(getAssumptionScenarioId("unknown", 5), null);
@@ -54,4 +79,14 @@ test("invalid guidance requests do not invent an assumption", () => {
 test("disclaimer states that guidance is not advice and outcomes are not guaranteed", () => {
   assert.match(ASSUMPTION_DISCLAIMER, /不是投資建議/);
   assert.match(ASSUMPTION_DISCLAIMER, /不保證/);
+});
+
+test("scenario descriptions avoid advice and guarantee language", () => {
+  const forbiddenClaims = /保證|一定會|必然|建議你|應該買|應該賣|推薦/;
+
+  for (const guidance of Object.values(ASSUMPTION_GUIDANCE)) {
+    for (const scenario of guidance.scenarios) {
+      assert.doesNotMatch(scenario.description, forbiddenClaims);
+    }
+  }
 });
