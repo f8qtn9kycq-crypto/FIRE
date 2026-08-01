@@ -1,30 +1,20 @@
 import { useRef, useState } from "react";
 import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
+import { getAssumptionPresets } from "../utils/assumptionGuidance";
 import { DEFAULT_PLAN_END_AGE, getInputCompletion, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
+import AssumptionGuide from "./AssumptionGuide";
 import MobileSummary from "./MobileSummary";
 import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
 const PRESETS = {
-  retPre: [
-    { label: "保守", value: 4 },
-    { label: "平衡", value: 7 },
-    { label: "積極", value: 10 },
-  ],
-  retPost: [
-    { label: "保守", value: 3 },
-    { label: "平衡", value: 5 },
-    { label: "積極", value: 7 },
-  ],
+  retPre: getAssumptionPresets("retPre"),
+  retPost: getAssumptionPresets("retPost"),
   swr: [
     { label: "保守", value: 3 },
     { label: "平衡", value: 3.5 },
     { label: "積極", value: 4 },
   ],
-  inf: [
-    { label: "低", value: 1.5 },
-    { label: "一般", value: 2.5 },
-    { label: "高", value: 4 },
-  ],
+  inf: getAssumptionPresets("inf"),
 };
 
 function CoreInputProgress({ inp }) {
@@ -165,6 +155,7 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
             <summary>通膨與提領</summary>
             <Slider label="安全提領率" value={inp.swr} min={2} max={6} step={0.25} presets={PRESETS.swr} onChange={(v) => setInput("swr", v)} />
             <Slider label="通貨膨脹率" value={inp.inf} min={0} max={8} step={0.25} presets={PRESETS.inf} onChange={(v) => setInput("inf", v)} />
+            <AssumptionGuide assumptionKey="inf" value={inp.inf} />
           </details>
 
           <details className="setting-panel">
@@ -176,7 +167,9 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
                 : "預設以 95 歲作為長期規劃年齡。"}
             </div>
             <Slider label="退休前年報酬率" value={inp.retPre} min={2} max={15} step={0.5} presets={PRESETS.retPre} onChange={(v) => setInput("retPre", v)} />
+            <AssumptionGuide assumptionKey="retPre" value={inp.retPre} />
             <Slider label="退休後年報酬率" value={inp.retPost} min={1} max={12} step={0.5} presets={PRESETS.retPost} onChange={(v) => setInput("retPost", v)} />
+            <AssumptionGuide assumptionKey="retPost" value={inp.retPost} />
           </details>
 
           <details className="setting-panel">
