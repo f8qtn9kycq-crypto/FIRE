@@ -12,7 +12,7 @@ export default function EarliestRetirementStory({ result }) {
         <span>反推退休年齡</span>
         <h3>{title}</h3>
         <p>
-          以目前資產、每年投入、報酬率、通膨與支出試算，搜尋到 {result.maxRetirementAge} 歲；條件改變，結果也會改變，不代表保證。
+          系統會從你現在的年齡開始，一歲一歲試算，最晚算到 {result.maxRetirementAge} 歲（也就是「長期規劃到幾歲」的前一歲）。假設改變，結果也會改變，不代表保證。
         </p>
       </section>
     );
@@ -23,7 +23,7 @@ export default function EarliestRetirementStory({ result }) {
       <section className="earliest-retirement-story warn" aria-live="polite">
         <span>反推退休年齡</span>
         <h3>目前範圍內尚未找到達標年齡</h3>
-        <p>已試算到 {result.maxRetirementAge} 歲；可調整投入、支出或假設後再比較，不代表你無法退休。</p>
+        <p>系統已從你現在的年齡逐歲試算到 {result.maxRetirementAge} 歲（也就是「長期規劃到幾歲」的前一歲），這段期間尚未達到目標。可調整投入、支出或假設後再比較，不代表你無法退休。</p>
       </section>
     );
   }
