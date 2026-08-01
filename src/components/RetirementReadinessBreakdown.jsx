@@ -1,6 +1,9 @@
 import { buildReadinessBreakdown } from "../utils/readinessBreakdown";
 import { fmt, roundMoneyForDisplay } from "../utils/formatters";
-import { reconcileRetirementAssetBreakdownForDisplay } from "../utils/retirementAssetBreakdown";
+import {
+  getRetirementAssetGrowthTone,
+  reconcileRetirementAssetBreakdownForDisplay,
+} from "../utils/retirementAssetBreakdown";
 
 function MetricCard({ label, value, tone = "neutral", sub }) {
   return (
@@ -48,7 +51,7 @@ function AssetSourceBreakdown({ assetBreakdown, currency }) {
     {
       label: "投資成長",
       value: displayBreakdown.projectedInvestmentGrowth,
-      tone: assetBreakdown.projectedInvestmentGrowth < 0 ? "bad" : "good",
+      tone: getRetirementAssetGrowthTone(displayBreakdown),
     },
   ];
 

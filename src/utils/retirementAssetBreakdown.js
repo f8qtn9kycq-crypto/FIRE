@@ -52,3 +52,7 @@ export function reconcileRetirementAssetBreakdownForDisplay(assetBreakdown, roun
     total: roundedTotal,
   };
 }
+
+export function getRetirementAssetGrowthTone(displayBreakdown) {
+  return displayBreakdown.projectedInvestmentGrowth < 0 ? "bad" : "good";
+}

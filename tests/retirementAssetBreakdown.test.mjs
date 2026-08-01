@@ -3,6 +3,7 @@ import test from "node:test";
 import { CURRENCIES, roundMoneyForDisplay } from "../src/utils/formatters.js";
 import {
   buildRetirementAssetBreakdown,
+  getRetirementAssetGrowthTone,
   reconcileRetirementAssetBreakdownForDisplay,
 } from "../src/utils/retirementAssetBreakdown.js";
 
@@ -116,4 +117,20 @@ test("reconciles display-rounded source values for TWD and USD", () => {
     ].reduce((sum, value) => sum + value, 0);
     assert.equal(sourceTotal, result.total);
   }
+});
+
+test("uses the reconciled growth value for its display tone", () => {
+  const result = reconcileRetirementAssetBreakdownForDisplay(
+    {
+      cashAtRetirement: 300,
+      startingInvestmentPrincipal: 300,
+      cumulativeContributions: 300,
+      projectedInvestmentGrowth: -400,
+      total: 500,
+    },
+    (value) => roundMoneyForDisplay(value, CURRENCIES.TWD),
+  );
+
+  assert.equal(result.projectedInvestmentGrowth, 1_000);
+  assert.equal(getRetirementAssetGrowthTone(result), "good");
 });
