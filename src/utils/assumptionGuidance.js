@@ -3,11 +3,13 @@ export const ASSUMPTION_GUIDANCE = {
     title: "退休前年報酬率",
     impact: "影響退休前投資與每年投入的複利成長，不會套用在現金儲蓄。",
     benchmark: {
-      body: "歷史尺度（僅供比較）：0050 追蹤 FTSE 臺灣50指數；−21.5%（2022）與 +49.0%（2024）是該含息指數的單一年度報酬，不是 0050 成立以來年化報酬。S&P 500 的 13.58% 是截至 2026 年 6 月底、往回 10 年的美元價格年化報酬，不是成立以來年化報酬，也不含股息。0050 實際基金報酬另受費用與追蹤差異影響；兩者的市場、幣別、期間與口徑不同，不能直接當成你的預期報酬。",
+      body: "歷史尺度（僅供比較）：0050 成立以來含息年化報酬約 13.3%（截至 2026 年 1 月，元大以每年 250 個交易日換算）；往回 10 年含息累積報酬 446.26%（截至 2025 年 11 月），換算年化約 18.51%。其追蹤的 FTSE 臺灣50含息指數，單一年度曾有 −21.5%（2022）與 +49.0%（2024）。S&P 500 的 1928–2025 長期美元價格年化報酬為 6.8%，其中 1957 年正式發布前是回溯試算；截至 2026 年 6 月底，往回 10 年美元價格年化報酬為 13.58%，不含股息。0050 實際基金報酬另受費用與追蹤差異影響；兩者的市場、幣別、截止日與口徑不同，不能直接當成你的預期報酬。",
       sources: [
-        { label: "元大 0050 官方資料", url: "https://www.yuantaetfs.com/product/detail/0050/Basic_information" },
+        { label: "元大 0050 成立以來績效", url: "https://www.yuanta.com/TW/News-and-Media/Press-Releases/Detail?id=664ae7a3-4e9a-4506-baf3-5e222ea99ad9" },
+        { label: "投信投顧公會 ETF 十年績效", url: "https://www.sitca.org.tw/ROC/SITCA_ETF/etf_performance_2f.aspx?txtR1=0&txtYM=202511" },
         { label: "FTSE 臺灣50官方資料", url: "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=TW50&openfile=open" },
-        { label: "S&P 500 官方資料", url: "https://www.spglobal.com/spdji/en/indices/equity/sp-500/" },
+        { label: "S&P 500 長期績效資料", url: "https://www.spglobal.com/spdji/en/documents/commentary/market-commentary-great-expectations.pdf" },
+        { label: "S&P 500 最新十年績效", url: "https://www.spglobal.com/spdji/en/indices/equity/sp-500/" },
       ],
     },
     thresholds: [5.5, 8.5],
