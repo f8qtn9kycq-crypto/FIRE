@@ -97,12 +97,15 @@ test("historical benchmarks preserve values while distinguishing sources and lim
   assert.match(beforeRetirement, /0050/);
   assert.match(beforeRetirement, /2022 年 −21\.5%/);
   assert.match(beforeRetirement, /2024 年 \+49\.0%/);
+  assert.match(beforeRetirement, /成立以來含息年化報酬約 13\.3%/);
+  assert.match(beforeRetirement, /換算年化約 18\.51%/);
+  assert.match(beforeRetirement, /1928–2025.*6\.8%/);
   assert.match(beforeRetirement, /13\.58%/);
   assert.match(beforeRetirement, /不含股息/);
   assert.match(beforeRetirement, /不能直接當成你的預期報酬/);
   assert.match(beforeRetirement, /單一年度報酬/);
-  assert.match(beforeRetirement, /不是 0050 成立以來年化報酬/);
-  assert.match(beforeRetirement, /不是成立以來年化報酬/);
+  assert.match(beforeRetirement, /每年 250 個交易日換算/);
+  assert.match(beforeRetirement, /1957 年正式發布前是回溯試算/);
   assert.match(beforeRetirement, /費用與追蹤差異/);
 
   const afterRetirement = ASSUMPTION_GUIDANCE.retPost.benchmark.body;
