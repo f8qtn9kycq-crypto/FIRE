@@ -2,6 +2,14 @@ export const ASSUMPTION_GUIDANCE = {
   retPre: {
     title: "退休前年報酬率",
     impact: "影響退休前投資與每年投入的複利成長，不會套用在現金儲蓄。",
+    benchmark: {
+      body: "歷史尺度（僅供比較）：0050 追蹤 FTSE 臺灣50指數；該含息指數的單年報酬曾從 2022 年 −21.5% 到 2024 年 +49.0%。S&P 500 美元價格指數截至 2026 年 6 月底的近 10 年年化報酬為 13.58%，但不含股息。兩者的市場、幣別、期間、含息口徑與基金成本不同，不能直接當成你的預期報酬。",
+      sources: [
+        { label: "元大 0050 官方資料", url: "https://www.yuantaetfs.com/product/detail/0050/Basic_information" },
+        { label: "FTSE 臺灣50官方資料", url: "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=TW50&openfile=open" },
+        { label: "S&P 500 官方資料", url: "https://www.spglobal.com/spdji/en/indices/equity/sp-500/" },
+      ],
+    },
     thresholds: [5.5, 8.5],
     scenarios: [
       { id: "conservative", label: "保守", value: 4, description: "用較低成長估算，較能承受實際報酬不如預期的落差。" },
@@ -12,6 +20,14 @@ export const ASSUMPTION_GUIDANCE = {
   retPost: {
     title: "退休後年報酬率",
     impact: "影響退休後資產在每年提領前的成長；退休初期下跌會放大提領壓力。",
+    benchmark: {
+      body: "0050／FTSE 臺灣50與 S&P 500 可用來理解股票市場曾有的長期成長與大幅波動，但退休後會同時提領生活費；遇到先跌後漲時，結果可能和單看指數平均報酬差很多。因此不宜直接照搬股票指數的歷史報酬。",
+      sources: [
+        { label: "元大 0050 官方資料", url: "https://www.yuantaetfs.com/product/detail/0050/Basic_information" },
+        { label: "FTSE 臺灣50官方資料", url: "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=TW50&openfile=open" },
+        { label: "S&P 500 官方資料", url: "https://www.spglobal.com/spdji/en/indices/equity/sp-500/" },
+      ],
+    },
     thresholds: [4, 6],
     scenarios: [
       { id: "conservative", label: "保守", value: 3, description: "用較低成長估算，為退休期間的市場落差保留較多空間。" },
@@ -22,6 +38,12 @@ export const ASSUMPTION_GUIDANCE = {
   inf: {
     title: "通貨膨脹率",
     impact: "影響未來生活費的購買力；通膨越高，同樣生活方式需要的金額越多。",
+    benchmark: {
+      body: "行政院主計總處公布的臺灣全年 CPI 年增率：2021 年 1.96%、2022 年 2.95%、2023 年 2.50%、2024 年 2.18%、2025 年 1.66%，五年簡單平均約 2.25%。目前 2.5% 是略高於這段平均的規劃情境，不是政府預測；房租、醫療、餐飲等個人支出漲幅也可能不同。",
+      sources: [
+        { label: "行政院主計總處 CPI 統計表", url: "https://www.stat.gov.tw/cp.aspx?n=2665&s=2655" },
+      ],
+    },
     thresholds: [2, 3.25],
     reverse: true,
     scenarios: [
