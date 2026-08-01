@@ -2,24 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { calculateResults } from "../src/utils/fireEngine.js";
-import {
-  calculateRetirementReadiness,
-  findEarliestRetirementAgeForPlan,
-} from "../src/utils/retirementReadiness.js";
+import { calculateRetirementReadiness, findEarliestRetirementAgeForPlan } from "../src/utils/retirementReadiness.js";
 
 const basePlan = {
-  age: 40,
-  lifeExp: 95,
-  cash: 0,
-  investments: 100,
-  expenses: 100,
-  annualContrib: 100,
-  retAge: 65,
-  retPre: 0,
-  inf: 0,
-  swr: 4,
-  currencyCode: "TWD",
-  cgTax: 0,
+  age: 40, lifeExp: 95, retAge: 65,
+  cash: 0, investments: 100, annualContrib: 100, expenses: 100,
+  retPre: 0, inf: 0, swr: 4,
+  currencyCode: "TWD", cgTax: 0,
 };
 
 test("uses the current readiness formula for a candidate retirement age", () => {
@@ -51,12 +40,7 @@ test("preserves whole contribution-period counting for fractional ages", () => {
 });
 
 test("distinguishes already-ready, later-ready, not-found, and invalid plans", () => {
-  const alreadyReady = findEarliestRetirementAgeForPlan({
-    ...basePlan,
-    cash: 2_500,
-    investments: 0,
-    annualContrib: 0,
-  });
+  const alreadyReady = findEarliestRetirementAgeForPlan({ ...basePlan, cash: 2_500, investments: 0, annualContrib: 0 });
   assert.equal(alreadyReady.age, 40);
   assert.equal(alreadyReady.reason, "already-ready");
   assert.equal(alreadyReady.maxRetirementAge, 94);
