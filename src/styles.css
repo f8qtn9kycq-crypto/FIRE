@@ -1708,3 +1708,34 @@ money-grid,
     width: min(100%, 980px);
   }
 }
+
+
+.assumption-benchmark {
+  margin-top: 14px;
+  padding: 12px;
+  border-left: 3px solid #5b9bd5;
+  border-radius: 0 8px 8px 0;
+  background: #151a20;
+  color: #b0ada6;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.assumption-benchmark strong {
+  color: #d7e8f7;
+}
+
+.assumption-benchmark p {
+  margin: 6px 0 10px;
+}
+
+.assumption-source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.assumption-source-links a {
+  color: #8fc3ed;
+  text-underline-offset: 3px;
+}

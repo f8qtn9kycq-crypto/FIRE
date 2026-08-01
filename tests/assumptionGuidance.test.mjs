@@ -92,6 +92,37 @@ test("invalid guidance requests do not invent an assumption", () => {
   assert.equal(getAssumptionScenarioId("retPre", "not-a-number"), null);
 });
 
+test("historical benchmarks preserve values while distinguishing sources and limitations", () => {
+  const beforeRetirement = ASSUMPTION_GUIDANCE.retPre.benchmark.body;
+  assert.match(beforeRetirement, /0050/);
+  assert.match(beforeRetirement, /2022 年 −21\.5%/);
+  assert.match(beforeRetirement, /2024 年 \+49\.0%/);
+  assert.match(beforeRetirement, /成立以來含息年化報酬約 13\.3%/);
+  assert.match(beforeRetirement, /換算年化約 18\.51%/);
+  assert.match(beforeRetirement, /1928–2025.*6\.8%/);
+  assert.match(beforeRetirement, /13\.58%/);
+  assert.match(beforeRetirement, /不含股息/);
+  assert.match(beforeRetirement, /不能直接當成你的預期報酬/);
+  assert.match(beforeRetirement, /單一年度報酬/);
+  assert.match(beforeRetirement, /每年 250 個交易日換算/);
+  assert.match(beforeRetirement, /1957 年正式發布前是回溯試算/);
+  assert.match(beforeRetirement, /費用與追蹤差異/);
+
+  const afterRetirement = ASSUMPTION_GUIDANCE.retPost.benchmark.body;
+  assert.match(afterRetirement, /同時提領生活費/);
+  assert.match(afterRetirement, /不宜直接照搬/);
+
+  const inflation = ASSUMPTION_GUIDANCE.inf.benchmark.body;
+  assert.match(inflation, /2021 年 1\.96%/);
+  assert.match(inflation, /2025 年 1\.66%/);
+  assert.match(inflation, /五年簡單平均約 2\.25%/);
+  assert.match(inflation, /不是政府預測/);
+
+  for (const guidance of Object.values(ASSUMPTION_GUIDANCE)) {
+    assert.ok(guidance.benchmark.sources.every(({ url }) => url.startsWith("https://")));
+  }
+});
+
 test("disclaimer states that guidance is not advice and outcomes are not guaranteed", () => {
   assert.match(ASSUMPTION_DISCLAIMER, /不是投資建議/);
   assert.match(ASSUMPTION_DISCLAIMER, /不保證/);
