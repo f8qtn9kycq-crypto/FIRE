@@ -84,4 +84,6 @@ test("result storytelling distinguishes found, not-found, and invalid states", a
   assert.match(source, /目前無法反推退休年齡/);
   assert.match(source, /不代表保證/);
   assert.match(source, /不代表你無法退休/);
+  assert.match(source, /從你現在的年齡開始，一歲一歲試算/);
+  assert.match(source, /「長期規劃到幾歲」的前一歲/);
 });
