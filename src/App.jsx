@@ -46,10 +46,18 @@ export default function App() {
     return new URLSearchParams(window.location.search).get("blank") === "1";
   }, []);
   const [isResetState, setIsResetState] = useState(urlIsBlank);
-  const [inp, setInp, clearStoredInputs] = useLocalStorage("fire-inputs", initialInputs, {
+  const [sharedSaveError, setSharedSaveError] = useState("");
+  const [
+    inp,
+    setInp,
+    clearStoredInputs,
+    persistCurrentInputs,
+    isSharedPlanPending,
+  ] = useLocalStorage("fire-inputs", initialInputs, {
     overrideValue: urlInputs,
     normalize: normalizeInputs,
-    persistOverride: !urlIsBlank,
+    persistOverride: false,
+    requireExplicitOverridePersistence: !urlIsBlank,
   });
 
   const ready = useMemo(() => isReady(inp), [inp]);
@@ -71,10 +79,12 @@ export default function App() {
     if (!confirmed) return;
 
     clearStoredInputs();
+    setSharedSaveError("");
     setIsResetState(true);
   };
 
   const setInput = (key, value) => {
+    setSharedSaveError("");
     setIsResetState(false);
     if (typeof key === "object") {
       setInp((prev) => ({ ...prev, ...key }));
@@ -87,6 +97,21 @@ export default function App() {
     }
 
     setInp((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const saveSharedPlan = () => {
+    if (typeof window === "undefined") return;
+    const confirmed = window.confirm(
+      t.sharedPlan.saveConfirm,
+    );
+    if (!confirmed) return;
+
+    if (!persistCurrentInputs()) {
+      setSharedSaveError(t.sharedPlan.saveError);
+      return;
+    }
+
+    setSharedSaveError("");
   };
 
   const showDetails = () => {
@@ -137,6 +162,17 @@ export default function App() {
         </div>
         <div style={{ fontSize: 12, color: "#8F8A80", marginTop: 4 }}>{t.subtitle}</div>
       </div>
+
+      {isSharedPlanPending && (
+        <section className="shared-plan-notice" aria-labelledby="shared-plan-title">
+          <div>
+            <strong id="shared-plan-title">{t.sharedPlan.title}</strong>
+            <p>{t.sharedPlan.description}</p>
+            {sharedSaveError && <p className="shared-plan-error" role="alert">{sharedSaveError}</p>}
+          </div>
+          <button type="button" onClick={saveSharedPlan}>{t.sharedPlan.saveButton}</button>
+        </section>
+      )}
 
       <div className="tab-bar">
         {t.tabs.map((label, i) => (
