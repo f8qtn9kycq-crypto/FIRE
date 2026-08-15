@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } from "../utils/formatters";
 import { getAssumptionPresets } from "../utils/assumptionGuidance";
 import { DEFAULT_PLAN_END_AGE, getInputCompletion, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
@@ -50,6 +50,7 @@ function CoreInputProgress({ inp }) {
 
 export default function Inputs({ inp, setInput, ready, res, story }) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [taxSettingsOpen, setTaxSettingsOpen] = useState(false);
   const inputRefs = useRef({});
   const currency = res?.currency || CURRENCIES[inp.currencyCode] || CURRENCIES.TWD;
   const moneyPrefix = currency.symbol || currency.code;
@@ -66,6 +67,13 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
   const shouldShowValidation =
     (hasTouchedPlanningAge || Boolean(cgTaxError)) && validationAlert.alertType !== "success";
   const hasBlockingValidation = validation.hasErrors && (hasTouchedPlanningAge || Boolean(cgTaxError));
+
+  useEffect(() => {
+    if (!cgTaxError) return;
+    setAdvancedOpen(true);
+    setTaxSettingsOpen(true);
+  }, [cgTaxError]);
+
   const setInputRef = (key) => (node) => {
     inputRefs.current[key] = node;
   };
@@ -174,7 +182,11 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
             <AssumptionGuide assumptionKey="retPost" value={inp.retPost} />
           </details>
 
-          <details className="setting-panel">
+          <details
+            className="setting-panel"
+            open={taxSettingsOpen}
+            onToggle={(event) => setTaxSettingsOpen(event.currentTarget.open)}
+          >
             <summary>稅務設定</summary>
             <div className="field-block">
               <label>輸入 / 顯示幣別</label>
