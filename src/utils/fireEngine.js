@@ -2,6 +2,7 @@ import { runMC } from "./monteCarlo.js";
 import { buildScenarioResults, runBearScenario } from "./scenarios.js";
 import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters.js";
 import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown.js";
+import { grossUpWithdrawalForTax } from "./taxAssumptions.js";
 import {
   calculateRetirementReadiness,
   defaultCgTaxForCurrency,
@@ -187,7 +188,7 @@ export function runProjection(saved, retPost, inf, cgTax, expenses, retYears, sh
 
   for (let y = 1; y <= retYears; y++) {
     const adjExp = expenses * Math.pow(1 + inf, y);
-    const grossW = adjExp / (1 - cgTax);
+    const grossW = grossUpWithdrawalForTax(adjExp, cgTax);
     p = Math.max(0, p * (1 + retPost) - grossW);
     out.push(Math.round(p));
   }
@@ -268,7 +269,7 @@ export function calculateResults(inp) {
     300,
     JSON.stringify({ age, lifeExp, retAge, rPost, rInf, rCG, retirementExpenses, portAtRet }),
   );
-  const grossAtRet = Math.round(retirementExpenses / (1 - rCG));
+  const grossAtRet = Math.round(grossUpWithdrawalForTax(retirementExpenses, rCG));
   const taxDrag = grossAtRet - retirementExpenses;
   const lifetimeTax = Math.round(taxDrag * retYears * Math.pow(1 + rInf, retYears / 2));
   const assessmentPortfolio = portAtRet;

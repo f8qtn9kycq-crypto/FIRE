@@ -62,8 +62,10 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
   const validation = validateInputsForDisplay(inp);
   const validationAlert = getValidationAlert(inp);
   const hasTouchedPlanningAge = inp.age > 0 || inp.retAge > 0 || inp.lifeExp !== DEFAULT_PLAN_END_AGE;
-  const shouldShowValidation = hasTouchedPlanningAge && validationAlert.alertType !== "success";
-  const hasBlockingValidation = hasTouchedPlanningAge && validation.hasErrors;
+  const cgTaxError = validation.boundaryErrors.find((error) => error.field === "cgTax")?.message || "";
+  const shouldShowValidation =
+    (hasTouchedPlanningAge || Boolean(cgTaxError)) && validationAlert.alertType !== "success";
+  const hasBlockingValidation = validation.hasErrors && (hasTouchedPlanningAge || Boolean(cgTaxError));
   const setInputRef = (key) => (node) => {
     inputRefs.current[key] = node;
   };
@@ -145,7 +147,7 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
           if (!ready) focusFirstMissing();
         }}
       >
-        {hasBlockingValidation ? "請先修正年齡設定" : ready ? "已完成試算" : completion.firstMissing ? `還需要：${completion.firstMissing.label}` : "完成核心資料後試算"}
+        {hasBlockingValidation ? "請先修正輸入設定" : ready ? "已完成試算" : completion.firstMissing ? `還需要：${completion.firstMissing.label}` : "完成核心資料後試算"}
       </button>
 
       <details className="advanced-panel" open={advancedOpen} onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}>
@@ -188,7 +190,16 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
                 ))}
               </select>
             </div>
-            <NumInput label="資本利得稅率 %" value={inp.cgTax} onChange={(v) => setInput("cgTax", v)} placeholder="例：20" />
+            <NumInput
+              id="capital-gains-tax-rate"
+              label="資本利得稅率 %"
+              value={inp.cgTax}
+              onChange={(v) => setInput("cgTax", v)}
+              placeholder="例：20"
+              isMissing={Boolean(cgTaxError)}
+              errorText={cgTaxError}
+            />
+            <div className="input-helper">可輸入 0%（含）至 100%（不含）。</div>
           </details>
 
           <details className="setting-panel">
