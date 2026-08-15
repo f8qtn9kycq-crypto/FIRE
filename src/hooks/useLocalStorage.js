@@ -1,47 +1,81 @@
 import { useEffect, useState } from "react";
-import { clearStoredValue, shouldSkipInitialPersistence } from "../utils/storagePersistence";
+import {
+  clearStoredValue,
+  persistStoredValue,
+  resolveInitialStorageState,
+  shouldKeepPersistencePausedAfterChange,
+} from "../utils/storagePersistence";
+
+function getBrowserStorage() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
 
 export function useLocalStorage(key, initialValue, options = {}) {
-  const { overrideValue, normalize = (value) => value, persistOverride = true } = options;
-  const [skipPersistence, setSkipPersistence] = useState(() =>
-    shouldSkipInitialPersistence(Boolean(overrideValue), persistOverride),
+  const {
+    overrideValue,
+    normalize = (value) => value,
+    persistOverride = true,
+    requireExplicitOverridePersistence = false,
+  } = options;
+  const [initialState] = useState(() =>
+    resolveInitialStorageState({
+      storage: getBrowserStorage(),
+      key,
+      initialValue,
+      overrideValue,
+      normalize,
+      persistOverride,
+      requireExplicitOverridePersistence,
+    }),
   );
-
-  const [value, setValue] = useState(() => {
-    if (overrideValue) return normalize(overrideValue);
-    if (typeof window === "undefined") return initialValue;
-
-    try {
-      const stored = window.localStorage.getItem(key);
-      return stored ? normalize({ ...initialValue, ...JSON.parse(stored) }) : normalize(initialValue);
-    } catch {
-      return normalize(initialValue);
-    }
-  });
+  const [skipPersistence, setSkipPersistence] = useState(initialState.skipPersistence);
+  const [isOverridePending, setIsOverridePending] = useState(initialState.isOverridePending);
+  const [value, setValue] = useState(initialState.value);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (skipPersistence) return;
-
     try {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      persistStoredValue(getBrowserStorage(), key, value, skipPersistence);
     } catch {
       // Ignore storage errors in private browsing or restricted environments.
     }
   }, [key, skipPersistence, value]);
 
   const updateValue = (nextValue) => {
-    setSkipPersistence(false);
+    setSkipPersistence((current) =>
+      shouldKeepPersistencePausedAfterChange(current, isOverridePending),
+    );
     setValue(nextValue);
   };
 
-  const clearValue = () => {
-    if (typeof window !== "undefined") {
-      clearStoredValue(window.localStorage, key);
+  const persistCurrentValue = () => {
+    try {
+      const didPersist = persistStoredValue(getBrowserStorage(), key, value);
+      if (!didPersist) return false;
+
+      setIsOverridePending(false);
+      setSkipPersistence(false);
+      return true;
+    } catch {
+      return false;
     }
+  };
+
+  const clearValue = () => {
+    try {
+      clearStoredValue(getBrowserStorage(), key);
+    } catch {
+      // Ignore storage errors in private browsing or restricted environments.
+    }
+    setIsOverridePending(false);
     setSkipPersistence(true);
     setValue(normalize(initialValue));
   };
 
-  return [value, updateValue, clearValue];
+  return [value, updateValue, clearValue, persistCurrentValue, isOverridePending];
 }
