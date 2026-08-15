@@ -1,5 +1,6 @@
 import { findEarliestRetirementAge } from "./earliestRetirementAge.js";
 import { CURRENCIES, moneyWanToTwd } from "./formatters.js";
+import { isValidCapitalGainsTaxPercent } from "./taxAssumptions.js";
 
 export const defaultCgTaxForCurrency = (currencyCode) => (currencyCode === "TWD" ? 0 : 20);
 
@@ -24,7 +25,8 @@ function hasValidReadinessInputs(inp, retirementAge) {
     Number.isFinite(inp.lifeExp) &&
     retirementAge < inp.lifeExp &&
     (inp.cash > 0 || inp.investments > 0) &&
-    inp.expenses > 0
+    inp.expenses > 0 &&
+    (!Number.isFinite(inp.cgTax) || isValidCapitalGainsTaxPercent(inp.cgTax))
   );
 }
 

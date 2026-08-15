@@ -1,3 +1,5 @@
+import { grossUpWithdrawalForTax } from "./taxAssumptions.js";
+
 export function runBearScenario(startingPortfolio, retPost, inf, cgTax, expenses, retYears) {
   let p = startingPortfolio;
   const series = [Math.round(p)];
@@ -10,7 +12,7 @@ export function runBearScenario(startingPortfolio, retPost, inf, cgTax, expenses
     else if (y === 3) yearlyReturn = 0.04;
 
     const adjExp = expenses * Math.pow(1 + inf, y);
-    const grossW = adjExp / (1 - cgTax);
+    const grossW = grossUpWithdrawalForTax(adjExp, cgTax);
     p = Math.max(0, p * (1 + yearlyReturn) - grossW);
     series.push(Math.round(p));
   }

@@ -1,3 +1,5 @@
+import { isValidCapitalGainsTaxPercent } from "./taxAssumptions.js";
+
 export const DEFAULT_PLAN_END_AGE = 95;
 export const SUPPORT_MAX_AGE = 120;
 
@@ -28,6 +30,7 @@ export function validateInputBoundaries(inputs) {
   const age = Number(inputs.age) || 0;
   const retAge = Number(inputs.retAge) || 0;
   const lifeExp = Number(inputs.lifeExp) || DEFAULT_PLAN_END_AGE;
+  const cgTax = Number(inputs.cgTax);
 
   if (age <= 0) {
     errors.push({ field: "age", message: "目前年齡必須大於 0。", severity: "error" });
@@ -47,6 +50,14 @@ export function validateInputBoundaries(inputs) {
 
   if (lifeExp > SUPPORT_MAX_AGE) {
     errors.push({ field: "lifeExp", message: `長期規劃年齡不能超過 ${SUPPORT_MAX_AGE} 歲。`, severity: "error" });
+  }
+
+  if (Number.isFinite(cgTax) && !isValidCapitalGainsTaxPercent(cgTax)) {
+    errors.push({
+      field: "cgTax",
+      message: "資本利得稅率必須介於 0%（含）與 100%（不含）之間。",
+      severity: "error",
+    });
   }
 
   return {

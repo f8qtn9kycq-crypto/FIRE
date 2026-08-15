@@ -1,3 +1,5 @@
+import { grossUpWithdrawalForTax } from "./taxAssumptions.js";
+
 const VOLATILITY = 0.1;
 
 function seededRandom(seed) {
@@ -29,7 +31,7 @@ export function runMC(saved, retPost, inf, cgTax, expenses, retYears, N = 300, s
 
       for (let t = 1; t <= yi + 1; t++) {
         const adjExp = expenses * Math.pow(1 + inf, t);
-        const grossW = adjExp / (1 - cgTax);
+        const grossW = grossUpWithdrawalForTax(adjExp, cgTax);
         const r = retPost + (rng() - 0.5) * VOLATILITY;
         p = p * (1 + r) - grossW;
 
