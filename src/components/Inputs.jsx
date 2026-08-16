@@ -3,7 +3,6 @@ import { CURRENCIES, fmt, formatMoneyInput, moneyWanToTwd, parseMoneyInput } fro
 import { getAssumptionPresets } from "../utils/assumptionGuidance";
 import { DEFAULT_PLAN_END_AGE, getInputCompletion, getValidationAlert, validateInputsForDisplay } from "../utils/fireEngine";
 import AssumptionGuide from "./AssumptionGuide";
-import MobileSummary from "./MobileSummary";
 import { Divider, NumInput, SecLabel, Slider } from "./SummaryCards";
 
 const PRESETS = {
@@ -48,7 +47,7 @@ function CoreInputProgress({ inp }) {
   );
 }
 
-export default function Inputs({ inp, setInput, ready, res, story }) {
+export default function Inputs({ inp, setInput, ready, res, onShowResults, headingRef }) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [taxSettingsOpen, setTaxSettingsOpen] = useState(false);
   const inputRefs = useRef({});
@@ -87,8 +86,12 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
   };
 
   return (
-    <div>
-      <MobileSummary inp={inp} res={res} story={story} />
+    <section className="planner-inputs" aria-labelledby="planner-inputs-title">
+      <div className="planner-inputs-header">
+        <div className="planner-results-kicker">步驟 1</div>
+        <h1 id="planner-inputs-title" ref={headingRef} tabIndex="-1">填寫退休規劃資料</h1>
+        <p>先完成核心資料；進階設定可依需要調整。</p>
+      </div>
       <CoreInputProgress inp={inp} />
 
       {shouldShowValidation && (
@@ -152,10 +155,14 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
         className="primary-cta"
         disabled={hasBlockingValidation}
         onClick={() => {
-          if (!ready) focusFirstMissing();
+          if (ready && res) {
+            onShowResults();
+            return;
+          }
+          focusFirstMissing();
         }}
       >
-        {hasBlockingValidation ? "請先修正輸入設定" : ready ? "已完成試算" : completion.firstMissing ? `還需要：${completion.firstMissing.label}` : "完成核心資料後試算"}
+        {hasBlockingValidation ? "請先修正輸入設定" : ready ? "查看退休試算結果" : completion.firstMissing ? `還需要：${completion.firstMissing.label}` : "完成核心資料後試算"}
       </button>
 
       <details className="advanced-panel" open={advancedOpen} onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}>
@@ -222,6 +229,6 @@ export default function Inputs({ inp, setInput, ready, res, story }) {
           </details>
         </div>
       </details>
-    </div>
+    </section>
   );
 }
