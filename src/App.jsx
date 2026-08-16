@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FAQ from "./components/FAQ";
 import Inputs from "./components/Inputs";
 import FormulaGuide from "./components/FormulaGuide";
 import PlanActions from "./components/PlanActions";
+import PlannerResults from "./components/PlannerResults";
 import Projection from "./components/Projection";
 import Risk from "./components/Risk";
 import Tax from "./components/Tax";
@@ -18,6 +19,7 @@ import {
   parseInputsFromSearch,
   serializeInputsToSearch,
 } from "./utils/fireEngine";
+import { getPlannerViewAction, PLANNER_VIEWS, transitionPlannerView } from "./utils/plannerView";
 
 function getPlanStory(res) {
   if (!res) return { status: "先填核心數字", tone: "neutral", success: null, achievementRate: null };
@@ -36,7 +38,10 @@ function getPlanStory(res) {
 export default function App() {
   const t = zhTW;
   const [tab, setTab] = useState(0);
+  const [viewMode, setViewMode] = useState(PLANNER_VIEWS.INPUT);
   const [activePage, setActivePage] = useState("calculator");
+  const inputHeadingRef = useRef(null);
+  const resultHeadingRef = useRef(null);
   const urlInputs = useMemo(() => {
     if (typeof window === "undefined") return null;
     return parseInputsFromSearch(window.location.search);
@@ -114,19 +119,35 @@ export default function App() {
     setSharedSaveError("");
   };
 
-  const showDetails = () => {
-    setTab(1);
+  const focusViewHeading = (ref) => {
     window.requestAnimationFrame(() => {
-      document.querySelector(".tab-bar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      ref.current?.focus({ preventScroll: true });
     });
   };
 
+  const showResults = () => {
+    const nextView = transitionPlannerView(viewMode, ready && Boolean(res));
+    if (nextView !== PLANNER_VIEWS.RESULT) return;
+    setTab(1);
+    setViewMode(nextView);
+    focusViewHeading(resultHeadingRef);
+  };
+
+  const adjustPlan = () => {
+    setTab(0);
+    setViewMode(PLANNER_VIEWS.INPUT);
+    focusViewHeading(inputHeadingRef);
+  };
+
   const panels = [
-    <Inputs inp={inp} setInput={setInput} ready={ready} res={res} story={story} />,
+    null,
     <Projection inp={inp} ready={ready} res={res} emptyText={t.empty} />,
     <Risk inp={inp} ready={ready} res={res} emptyText={t.empty} />,
     <Tax inp={inp} ready={ready} res={res} emptyText={t.empty} />,
   ];
+  const resultTabs = t.tabs.slice(1).map((label, offset) => ({ label, index: offset + 1 }));
+  const stickyAction = getPlannerViewAction(viewMode);
 
   if (activePage === "guide") {
     return <FormulaGuide onBack={() => setActivePage("calculator")} />;
@@ -174,30 +195,30 @@ export default function App() {
         </section>
       )}
 
-      <div className="tab-bar">
-        {t.tabs.map((label, i) => (
-          <button
-            key={label}
-            className="tab-button"
-            onClick={() => setTab(i)}
-            style={{
-              flex: 1,
-              padding: "13px 4px",
-              fontSize: 16,
-              fontWeight: tab === i ? 700 : 400,
-              color: tab === i ? "#C8A96E" : "#9B9890",
-              background: "none",
-              border: "none",
-              borderBottom: tab === i ? "2px solid #C8A96E" : "2px solid transparent",
-              cursor: "pointer",
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="app-content">{panels[tab]}</div>
+      <main className="app-content">
+        {viewMode === PLANNER_VIEWS.INPUT ? (
+          <Inputs
+            inp={inp}
+            setInput={setInput}
+            ready={ready}
+            res={res}
+            onShowResults={showResults}
+            headingRef={inputHeadingRef}
+          />
+        ) : (
+          <PlannerResults
+            inp={inp}
+            res={res}
+            story={story}
+            tabs={resultTabs}
+            activeTab={tab}
+            onTabChange={setTab}
+            panels={panels}
+            onAdjustPlan={adjustPlan}
+            headingRef={resultHeadingRef}
+          />
+        )}
+      </main>
       <div className={`sticky-summary ${ready && res ? "is-ready" : ""}`}>
         <div>
           <div className={`sticky-status ${story.tone}`}>{story.tone === "neutral" ? retirementLabel : story.status}</div>
@@ -205,8 +226,12 @@ export default function App() {
             {story.achievementRate === null ? "填完核心數字即可試算" : `退休時達標率：${story.achievementRate}% · ${retirementLabel}`}
           </div>
         </div>
-        <button type="button" onClick={showDetails} disabled={!ready || !res}>
-          查看詳細
+        <button
+          type="button"
+          onClick={viewMode === PLANNER_VIEWS.RESULT ? adjustPlan : showResults}
+          disabled={viewMode === PLANNER_VIEWS.INPUT && (!ready || !res)}
+        >
+          {stickyAction.label}
         </button>
       </div>
     </div>
