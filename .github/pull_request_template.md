@@ -40,18 +40,25 @@ What user problem this addresses:
 - [ ] Edge cases checked when finance calculations changed
 - [ ] Privacy/data handling reviewed when personal data changed
 
+## Draft / Ready semantics
+
+- [ ] Draft is used only while implementation or required evidence for this PR is incomplete
+- [ ] Missing manual walkthrough, device evidence, or human review does not by itself require Draft unless this risk tier or the acceptance criteria explicitly require it
+- [ ] A completed PR may be Ready for review while explicit merge approval is still pending
+
 ## AI review routing
 
 - [ ] Codex review needed
 - [ ] Claude review needed for Tier 3 or conflicting findings
 - [ ] ChatGPT PM synthesis needed before merge
-- [ ] Human review required before merge
+- [ ] Human review required only when Tier 3, privacy/data rules, or explicit acceptance criteria require it
 
 ## Merge readiness
 
 - [ ] No P0
 - [ ] P1 either fixed or explicitly deferred
 - [ ] Acceptance criteria met
+- [ ] Required targeted review evidence is complete or explicitly deferred
 - [ ] Explicit human merge approval retained
 
 ## Post-merge cleanup
