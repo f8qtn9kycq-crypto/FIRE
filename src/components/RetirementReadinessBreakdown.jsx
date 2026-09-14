@@ -94,7 +94,7 @@ function RiskSummary({ breakdown, inp }) {
           <strong>{breakdown.bearMarketOk ? "可支撐" : "有壓力"}</strong>
         </div>
         <div className={mcTone}>
-          <span>蒙地卡羅成功率</span>
+          <span>蒙地卡羅情境比例</span>
           <strong>{breakdown.mcSuccess === null ? "尚無資料" : `${breakdown.mcSuccess}%`}</strong>
         </div>
       </div>
@@ -113,10 +113,10 @@ export default function RetirementReadinessBreakdown({ inp, res }) {
     <section className={`readiness-card ${tone}`}>
       <div className="readiness-header">
         <span>退休準備度分析</span>
-        <h3>{breakdown.fireReadyAtRet ? "依目前假設可達 FIRE" : "目前還需要調整"}</h3>
+        <h3>{breakdown.fireReadyAtRet ? "依目前假設已達試算門檻" : "目前尚未達到試算門檻"}</h3>
         <p>
           {breakdown.fireReadyAtRet
-            ? "依目前假設，退休時投資組合可覆蓋目標；結果會隨報酬、通膨與支出變化，仍建議留意熊市壓力。"
+            ? "依目前假設，退休時投資組合達到目標；這是確定性門檻，仍要用蒙地卡羅與熊市情境檢查不確定性。"
             : "目前設定下，退休時資產尚未完全覆蓋目標；可從投入金額、退休時間或支出假設調整。"}
         </p>
       </div>
