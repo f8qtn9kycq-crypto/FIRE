@@ -112,7 +112,7 @@ risk_tiers:
       claude_review: not_required_unless_findings_conflict
       chatgpt_pm_synthesis: recommended_before_merge
     auto_merge_eligible: true
-    auto_merge_requirements: [non_draft_pr, current_head_build_pass, no_requested_changes, no_unresolved_p0_or_p1, codex_review_pass]
+    auto_merge_requirements: [non_draft_pr, current_head_build_pass, no_requested_changes, no_unresolved_p0_or_p1, codex_review_pass, chatgpt_pm_synthesis_pass]
   Tier 1:
     description: copy, UI polish, labels, or non-calculation presentation changes
     review_routing:
