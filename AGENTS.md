@@ -44,7 +44,7 @@ Primary boundaries:
 - Do not broadly rewrite the repo unless explicitly requested.
 - Preserve existing data compatibility when data files or schemas exist.
 - Prefer deterministic validation for financial formulas and scenario outputs.
-- Require explicit human merge approval for all PRs.
+- Require explicit human merge approval for P0, Tier 2/3, and any change to FIRE calculations, withdrawal assumptions, tax, inflation, currency, portfolio allocation, privacy, or security. Tier 0/1 changes may use the risk-based auto-merge gate in `.github/ai-automation.yml`.
 
 ## Validation defaults
 
@@ -80,7 +80,7 @@ Codex must:
 - keep PRs small and reviewable.
 - fill the PR template with concrete QA evidence.
 - avoid changing finance assumptions, calculations, privacy, data, or integration behavior unless the selected issue explicitly asks for it.
-- never merge automatically; this repo keeps an explicit human merge gate.
+- never bypass the risk-based merge gate; auto-merge is allowed only for eligible Tier 0/1 changes after all current-head checks pass.
 
 ## P0 blockers
 
@@ -127,4 +127,4 @@ FIRE follows the reference `f8qtn9kycq-crypto/rehab-workout` Project #4 contract
 - `AI Owner`: `Codex`, `Claude`, `ChatGPT`, `Gemini`
 - `Area`: `Safety`, `i18n`, `Progress`, `UX`, `Workflow`
 
-Use one issue, one branch, and one PR per unit. Keep generated files out of PRs, preserve finance and data behavior, and stop before merge for explicit human approval. Projects V2 writes require the repository secret `PROJECTS_TOKEN`; never fall back to `GITHUB_TOKEN`.
+Use one issue, one branch, and one PR per unit. Keep generated files out of PRs, preserve finance and data behavior, and stop for explicit human approval when required by the selected risk tier. Projects V2 writes require the repository secret `PROJECTS_TOKEN`; never fall back to `GITHUB_TOKEN`.
