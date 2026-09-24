@@ -111,14 +111,16 @@ risk_tiers:
       codex_review: optional
       claude_review: not_required_unless_findings_conflict
       chatgpt_pm_synthesis: recommended_before_merge
-    auto_merge_eligible: false
+    auto_merge_eligible: true
+    auto_merge_requirements: [non_draft_pr, current_head_build_pass, no_requested_changes, no_unresolved_p0_or_p1, codex_review_pass]
   Tier 1:
     description: copy, UI polish, labels, or non-calculation presentation changes
     review_routing:
       codex_review: recommended
       claude_review: not_required_unless_calculation_or_data_risk_appears
       chatgpt_pm_synthesis: required_before_merge
-    auto_merge_eligible: false
+    auto_merge_eligible: true
+    auto_merge_requirements: [non_draft_pr, current_head_build_pass, no_requested_changes, no_unresolved_p0_or_p1, codex_review_pass, chatgpt_pm_synthesis_pass]
   Tier 2:
     description: data import/export, state handling, charts, scenario controls, or non-core calculation plumbing
     review_routing:
@@ -136,8 +138,11 @@ risk_tiers:
     auto_merge_eligible: false
 
 auto_merge:
-  allowed: false
-  reason: FIRE and finance-related logic require explicit human review and merge approval.
+  allowed: true
+  allowed_risk_tiers: [Tier 0, Tier 1]
+  forbidden_risk_tiers: [Tier 2, Tier 3]
+  forbidden_boundaries: [P0, FIRE calculations, withdrawal assumptions, tax/inflation/currency logic, portfolio allocation, privacy/security, personal-finance data handling]
+  reason: Low-risk workflow and presentation changes may auto-merge after current-head AI review and required checks; financial-model and data-risk changes require explicit human approval.
 
 control_plane:
   labels:

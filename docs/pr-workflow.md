@@ -32,7 +32,14 @@ Workflow-only PRs must also confirm that `PROJECTS_TOKEN` remains required and n
 
 ## Merge Gate
 
-Do not merge until the PR is open, non-draft, cleanly mergeable, has a successful current-head `Build` check, has no active requested changes, and has no unresolved P0. P1 findings must be fixed or explicitly deferred. Human approval is required for the final merge.
+Do not merge until the PR is open, non-draft, cleanly mergeable, has a successful current-head `Build` check, has no active requested changes, and has no unresolved P0. P1 findings must be fixed or explicitly deferred.
+
+Merge approval is risk-based:
+
+- Tier 0/1: AI review plus all required current-head checks may satisfy the merge gate and enable auto-merge when no P0/P1 blocker remains.
+- Tier 2/3, P0, or any change to calculations, withdrawal assumptions, tax, inflation, currency, portfolio allocation, privacy, or security: explicit human approval is required.
+
+Auto-merge must never be enabled when the PR changes financial model behavior or personal-finance data handling.
 
 ## Cleanup
 

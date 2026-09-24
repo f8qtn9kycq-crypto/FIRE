@@ -21,8 +21,8 @@ export default function MobileSummary({ inp, res, story }) {
       <h2>{story?.status || statusText}</h2>
       <p>
         {res.fireReadyAtRet
-          ? "依目前假設，退休時資產可覆蓋 FIRE 目標；結果會隨報酬、通膨與支出變化。"
-          : "目前設定下還需要調整資產、支出或退休時間。"}
+          ? "依目前假設，退休時資產達到 FIRE 目標；這是確定性門檻，不是保證結果。"
+          : "目前設定下尚未達到 FIRE 目標；可調整資產、支出或退休時間後再比較。"}
       </p>
 
       <div className="phase-summary-rate">

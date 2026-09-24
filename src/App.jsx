@@ -20,20 +20,7 @@ import {
   serializeInputsToSearch,
 } from "./utils/fireEngine";
 import { getPlannerViewAction, PLANNER_VIEWS, transitionPlannerView } from "./utils/plannerView";
-
-function getPlanStory(res) {
-  if (!res) return { status: "先填核心數字", tone: "neutral", success: null, achievementRate: null };
-
-  const success = res.mcData?.length ? res.mcData[res.mcData.length - 1] : null;
-  const achievementRate = Math.max(0, Math.round((res.assessmentPortfolio / Math.max(res.fireTarget, 1)) * 100));
-  if (success >= 85 && res.fireReadyAtRet) {
-    return { status: "相對穩健", tone: "good", success, achievementRate };
-  }
-  if (success >= 65 || res.fireReadyAtRet) {
-    return { status: "接近可行", tone: "warn", success, achievementRate };
-  }
-  return { status: "需要調整", tone: "bad", success, achievementRate };
-}
+import { getPlanStory } from "./utils/decisionStory";
 
 export default function App() {
   const t = zhTW;

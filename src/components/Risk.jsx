@@ -44,7 +44,7 @@ export default function Risk({ inp, ready, res, emptyText }) {
       >
         {bearOk
           ? `即使第1年遭遇30%市場崩跌，投資組合仍可支撐至 ${inp.lifeExp} 歲。緩衝充足。`
-          : `第1年30%崩跌可能導致投資組合在 ${inp.lifeExp} 歲前耗盡，建議保留2-3年現金緩衝。`}
+          : `第1年30%崩跌可能導致投資組合在 ${inp.lifeExp} 歲前耗盡；可調整假設後再次比較。`}
       </div>
 
       <SecLabel>風險因素</SecLabel>
@@ -55,7 +55,8 @@ export default function Risk({ inp, ready, res, emptyText }) {
       <RiskBar label="長壽風險" val={riskScores.longevity} />
 
       <Divider />
-      <SecLabel>蒙地卡羅模擬（300次）</SecLabel>
+      <SecLabel>蒙地卡羅情境檢查（300次）</SecLabel>
+      <div className="risk-explanation">FIRE 門檻先回答是否達到目標；這裡用簡化隨機情境檢查不確定性，不會把最早達標年齡變成保證。</div>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 12 }}>
         <MiniChart
           data={mcData}
@@ -65,7 +66,7 @@ export default function Risk({ inp, ready, res, emptyText }) {
           ariaLabel={`${inp.retAge}歲至${inp.lifeExp}歲的蒙地卡羅存活比例趨勢`}
         />
         <div style={{ marginTop: 14, fontSize: 16, color: "#9B9890", lineHeight: 1.7 }}>
-          {inp.lifeExp}歲仍有資產（300次模擬）：{" "}
+          {inp.lifeExp}歲仍有資產（300個簡化情境）：{" "}
           <strong style={{ color: survFinal >= 90 ? "#4CAF85" : survFinal >= 70 ? "#C8953A" : "#C05050", fontSize: 22 }}>{survFinal}%</strong>
           <br />
           {survFinal >= 90 ? "在這組假設下多數情境可支撐；不代表零風險或保證結果。" : survFinal >= 70 ? "在這組假設下仍有一定緩衝，可再測試較保守情境。" : "在這組假設下耗盡風險較高，建議調整後再比較。"}

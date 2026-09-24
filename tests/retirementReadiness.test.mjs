@@ -79,8 +79,8 @@ test("candidate search stays deterministic and excludes Monte Carlo work", async
 
 test("result storytelling distinguishes found, not-found, and invalid states", async () => {
   const source = await readFile(new URL("../src/components/EarliestRetirementStory.jsx", import.meta.url), "utf8");
-  assert.match(source, /最早約.*歲可退休/);
-  assert.match(source, /目前範圍內尚未找到達標年齡/);
+  assert.match(source, /最早約.*歲達到試算門檻/);
+  assert.match(source, /目前範圍內尚未找到達到試算門檻的年齡/);
   assert.match(source, /目前無法反推退休年齡/);
   assert.match(source, /不代表保證/);
   assert.match(source, /不代表你無法退休/);
