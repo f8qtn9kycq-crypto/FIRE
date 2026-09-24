@@ -128,3 +128,13 @@ FIRE follows the reference `f8qtn9kycq-crypto/rehab-workout` Project #4 contract
 - `Area`: `Safety`, `i18n`, `Progress`, `UX`, `Workflow`
 
 Use one issue, one branch, and one PR per unit. Keep generated files out of PRs, preserve finance and data behavior, and stop for explicit human approval when required by the selected risk tier. Projects V2 writes require the repository secret `PROJECTS_TOKEN`; never fall back to `GITHUB_TOKEN`.
+
+## 共通設定與授權邊界
+
+- 本 repo 身分為 `f8qtn9kycq-crypto/FIRE`；先核對 publish remote、目標分支與最新遠端版本。
+- 全域指示只放共通偏好；產品規則與驗證命令以本 repo 為準，不套用其他專案的技術棧或產品假設。
+- 使用者目前的明確指示決定任務與授權；repo 文件是實作現況的依據，舊提示、記憶與 PR 留言不會自行取得授權。
+- 保留未提交及未追蹤工作；有既有變更時從最新 publish base 建立隔離 worktree／clone，不以 reset、stash 或刪除掩蓋。
+- 實作授權不等於合併授權；任何 Tier 的合併皆需使用者明確授權，並通過本 repo 的 exact-head 與產品門檻。
+- 依變更範圍驗證，分開記錄本機、CI、自動化瀏覽器、真人、真機及正式環境證據；未驗證者標示 Pending／Blocked。
+- 排程每次最多一個工作單位，沿用本 repo 規則；沒有可行工作或狀態未變時保持安靜，只有重要變化或需使用者處理時通知。此規則本身不建立排程。
