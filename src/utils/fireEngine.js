@@ -1,4 +1,4 @@
-import { runMC } from "./monteCarlo.js";
+import { DEFAULT_MONTE_CARLO_RUNS, runMC } from "./monteCarlo.js";
 import { buildScenarioResults, runBearScenario } from "./scenarios.js";
 import { CURRENCIES, moneyWanToTwd, twdToMoneyWan } from "./formatters.js";
 import { buildRetirementAssetBreakdown } from "./retirementAssetBreakdown.js";
@@ -266,7 +266,7 @@ export function calculateResults(inp) {
     rCG,
     retirementExpenses,
     retYears,
-    300,
+    DEFAULT_MONTE_CARLO_RUNS,
     JSON.stringify({ age, lifeExp, retAge, rPost, rInf, rCG, retirementExpenses, portAtRet }),
   );
   const grossAtRet = Math.round(grossUpWithdrawalForTax(retirementExpenses, rCG));

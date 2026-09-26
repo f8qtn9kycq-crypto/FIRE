@@ -1,6 +1,8 @@
 import { grossUpWithdrawalForTax } from "./taxAssumptions.js";
 import { sampleSimpleAnnualReturn } from "./monteCarloModel.js";
 
+export const DEFAULT_MONTE_CARLO_RUNS = 300;
+
 function seededRandom(seed) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
@@ -18,7 +20,7 @@ function seededRandom(seed) {
   };
 }
 
-export function runMC(saved, retPost, inf, cgTax, expenses, retYears, N = 300, seed = "fire-planner") {
+export function runMC(saved, retPost, inf, cgTax, expenses, retYears, N = DEFAULT_MONTE_CARLO_RUNS, seed = "fire-planner") {
   const rng = seededRandom(seed);
 
   return Array.from({ length: retYears }, (_, yi) => {
