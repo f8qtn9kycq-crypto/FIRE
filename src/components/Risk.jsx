@@ -1,6 +1,7 @@
 import { fmt, moneyWanToTwd } from "../utils/formatters";
 import { getRiskScores } from "../utils/fireEngine";
 import { DEFAULT_MONTE_CARLO_RUNS } from "../utils/monteCarlo";
+import { SIMPLE_MODEL_ID, SIMPLE_MODEL_MAX_ANNUAL_RETURN_OFFSET } from "../utils/monteCarloModel";
 import { Divider, Empty, MiniChart, SecLabel } from "./SummaryCards";
 
 function RiskBar({ label, val }) {
@@ -57,7 +58,9 @@ export default function Risk({ inp, ready, res, emptyText }) {
 
       <Divider />
       <SecLabel>蒙地卡羅情境檢查（{DEFAULT_MONTE_CARLO_RUNS} 次）</SecLabel>
-      <div className="risk-explanation">FIRE 門檻先回答是否達到目標；這裡用固定種子的簡化隨機模型檢查不確定性，不是歷史市場抽樣、真實成功機率或保證，也不會把最早達標年齡變成退休建議。</div>
+      <div className="risk-explanation">
+        FIRE 門檻先回答是否達到目標；這裡用固定種子的簡化均勻模型檢查不確定性。每年報酬以你設定的退休後報酬率為中心，在上下各 {SIMPLE_MODEL_MAX_ANNUAL_RETURN_OFFSET * 100} 個百分點內等機率抽樣。模型版本：{SIMPLE_MODEL_ID}。它不是歷史市場校準、真實成功機率或保證，也不會把最早達標年齡變成退休建議。
+      </div>
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 12 }}>
         <MiniChart
           data={mcData}

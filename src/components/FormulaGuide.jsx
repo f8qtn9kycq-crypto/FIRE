@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { SIMPLE_MODEL_ID, SIMPLE_MODEL_MAX_ANNUAL_RETURN_OFFSET } from "../utils/monteCarloModel";
 import UtilityIcon from "./UtilityIcon";
 
 const SECTIONS = [
@@ -110,15 +111,15 @@ const SECTIONS = [
     marker: "7",
     title: "蒙地卡羅模擬怎麼算？",
     color: "#C8953A",
-    intro: "app 會跑 300 個簡化退休情境，統計有多少情境的資產能撐到內部預設規劃年齡。",
-    formula: "每年報酬率 = 退休後報酬率 + 固定種子隨機波動（約 ±5 個百分點）",
+    intro: `app 會跑 300 個 ${SIMPLE_MODEL_ID} 簡化退休情境，統計有多少情境的資產能撐到內部預設規劃年齡。`,
+    formula: `每年報酬率 = 退休後報酬率 + 固定種子均勻抽樣（±${SIMPLE_MODEL_MAX_ANNUAL_RETURN_OFFSET * 100} 個百分點）`,
     steps: [
       "每次模擬都從退休時投資組合開始。",
-      "每一年抽一個報酬率，並扣除通膨後支出。",
+      "每一年在設定報酬率上下各 5 個百分點內等機率抽一個報酬率，並扣除通膨後支出。",
       "如果中途資產歸零，該次模擬視為失敗。",
       "300 個情境中仍有資產的比例，是不確定性檢查指標，不是統計上的保證成功率。",
     ],
-    note: "目前使用 deterministic seed，所以同一組輸入會得到穩定結果，不會每次刷新都亂跳。",
+    note: "目前使用固定種子，所以同一組輸入會得到穩定結果。這個範圍未用台灣或全球歷史資料校準，不代表市場波動、極端跌幅或未來報酬分布。",
   },
 ];
 
