@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runMC } from "../src/utils/monteCarlo.js";
+import { DEFAULT_MONTE_CARLO_RUNS, runMC } from "../src/utils/monteCarlo.js";
 
 const base = {
   saved: 1_000,
@@ -18,6 +18,13 @@ test("Monte Carlo audit contract is deterministic for the same inputs and seed",
 
   assert.deepEqual(first, second);
   assert.equal(first.length, base.retYears);
+});
+
+test("default run count is explicit and used when omitted", () => {
+  assert.equal(DEFAULT_MONTE_CARLO_RUNS, 300);
+  const omitted = runMC(base.saved, base.retPost, base.inf, base.cgTax, base.expenses, base.retYears, undefined, "default-count");
+  const explicit = runMC(base.saved, base.retPost, base.inf, base.cgTax, base.expenses, base.retYears, DEFAULT_MONTE_CARLO_RUNS, "default-count");
+  assert.deepEqual(omitted, explicit);
 });
 
 test("Monte Carlo returns bounded whole-number percentages", () => {
