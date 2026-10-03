@@ -18,7 +18,7 @@ export default function Projection({ inp, ready, res, emptyText }) {
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 14 }}>
         <MiniChart data={baseData} color="#C8A96E" height={300} startAge={inp.retAge} currency={currency} />
         <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
-          {[["基準情境", "#C8A96E"], ["熊市第1年", "#C05050"]].map(([label, color]) => (
+          {[["基準情境", "#C8A96E"], ["熊市前三年 −30% / −10% / +4%", "#C05050"]].map(([label, color]) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#9B9890" }}>
               <div style={{ width: 18, height: 2, background: color, borderRadius: 1 }} />
               {label}
@@ -28,7 +28,7 @@ export default function Projection({ inp, ready, res, emptyText }) {
       </div>
 
       <div style={{ background: "#1A1916", border: "1px solid #2E2C28", borderRadius: 8, padding: "16px 12px", marginBottom: 14 }}>
-        <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 10 }}>熊市情境（第1年 −30%）</div>
+        <div style={{ fontSize: 15, color: "#9B9890", marginBottom: 10 }}>熊市情境（前三年 −30% / −10% / +4%）</div>
         <MiniChart data={bearData} color="#C05050" height={280} startAge={inp.retAge} currency={currency} />
       </div>
 

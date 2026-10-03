@@ -44,9 +44,10 @@ export default function Risk({ inp, ready, res, emptyText }) {
           lineHeight: 1.6,
         }}
       >
+        <strong style={{ display: "block", marginBottom: 4 }}>熊市壓力測試（前三年 −30% / −10% / +4%）</strong>
         {bearOk
-          ? `即使第1年遭遇30%市場崩跌，投資組合仍可支撐至 ${inp.lifeExp} 歲。緩衝充足。`
-          : `第1年30%崩跌可能導致投資組合在 ${inp.lifeExp} 歲前耗盡；可調整假設後再次比較。`}
+          ? `在這組三年壓力路徑假設下，投資組合仍可支撐至 ${inp.lifeExp} 歲；這不代表實際結果或保證。`
+          : `在這組三年壓力路徑假設下，投資組合可能在 ${inp.lifeExp} 歲前耗盡；可調整假設後再次比較。`}
       </div>
 
       <SecLabel>風險因素</SecLabel>

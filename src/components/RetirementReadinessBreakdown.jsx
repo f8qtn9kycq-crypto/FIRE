@@ -90,7 +90,7 @@ function RiskSummary({ breakdown, inp }) {
           <strong>{breakdown.baselineOk ? "可支撐" : "需調整"}</strong>
         </div>
         <div className={breakdown.bearMarketOk ? "good" : "bad"}>
-          <span>熊市情境（第 1 年 -30%）</span>
+          <span>熊市情境（前三年 −30% / −10% / +4%）</span>
           <strong>{breakdown.bearMarketOk ? "可支撐" : "有壓力"}</strong>
         </div>
         <div className={mcTone}>
