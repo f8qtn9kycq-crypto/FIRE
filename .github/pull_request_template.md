@@ -58,7 +58,7 @@ What user problem this addresses:
 - [ ] No P0
 - [ ] P1 either fixed or explicitly deferred
 - [ ] Acceptance criteria met
-- [ ] Required targeted review evidence is complete or explicitly deferred
+- [ ] 依風險分級要求的必要審查證據已完成；僅建議或選用審查可記錄理由後延期，必要審查未完成不得判定合併就緒
 - [ ] Explicit human merge approval retained
 
 ## Post-merge cleanup

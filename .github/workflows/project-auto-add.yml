@@ -256,8 +256,21 @@ jobs:
             mergeable_state="$(jq -r '.mergeable_state // ""' <<<"$content_json")"
             head_sha="$(jq -r '.head.sha // ""' <<<"$content_json")"
             if option_exists Status "Ready to Merge" && [[ "$pr_draft" == "false" && "$mergeable" == "true" && "$mergeable_state" == "clean" && -n "$head_sha" ]]; then
-              has_build="$(gh api "repos/$GITHUB_REPOSITORY/commits/$head_sha/check-runs?per_page=100" | jq -r '[.check_runs[]? | select((.name | ascii_downcase) == "build" and .head_sha == $sha and .status == "completed" and .conclusion == "success")] | length > 0' --arg sha "$head_sha")"
-              has_changes="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$target_number/reviews?per_page=100" | jq -r '[.[]? | select(.user.login != null)] | group_by(.user.login) | map(sort_by(.submitted_at // "") | last) | any(.state == "CHANGES_REQUESTED")')"
+              has_build="$(gh api "repos/$GITHUB_REPOSITORY/commits/$head_sha/check-runs?per_page=100&filter=latest" --paginate --slurp | jq -r --arg sha "$head_sha" '
+                [.[].check_runs[]?
+                  | select((.name | ascii_downcase) == "build")
+                  | select(.head_sha == $sha and .app.slug == "github-actions")
+                ] | sort_by(.id) | last
+                | .status == "completed" and .conclusion == "success"
+              ')"
+              has_changes="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$target_number/reviews?per_page=100" --paginate --slurp | jq -r '
+                [ .[][]?
+                  | select(.user.login != null)
+                  | select(.state == "CHANGES_REQUESTED" or .state == "APPROVED" or .state == "DISMISSED")
+                ] | group_by(.user.login)
+                | map(sort_by(.submitted_at // "") | last)
+                | any(.state == "CHANGES_REQUESTED")
+              ')"
               if [[ "$has_build" == "true" && "$has_changes" == "false" ]]; then
                 status="Ready to Merge"
               fi
